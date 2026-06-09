@@ -62,7 +62,7 @@
       "template": {
         "functions": "Template functions:",
         "if": "conditional statements",
-        "nodes": "proxy nodes list",
+        "nodes": "service nodes list",
         "range": "iterate arrays",
         "siteName": "site name",
         "sprig": "Sprig function library (string processing, dates, etc.)",

@@ -40,6 +40,11 @@ export function useNavs() {
           icon: "uil:shop",
           title: t("menu.subscribe", "Subscribe"),
         },
+        {
+          url: "/amraanet",
+          icon: "uil:wifi",
+          title: t("menu.amraanet", "AmraaNet Service"),
+        },
       ],
     },
     {

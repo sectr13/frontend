@@ -797,7 +797,7 @@ export function ProtocolForm() {
                                           -{" "}
                                           {t(
                                             "form.descriptions.template.nodes",
-                                            "proxy nodes list"
+                                            "service nodes list"
                                           )}
                                         </li>
                                         <li>

@@ -1,11 +1,11 @@
 {
-  "commissionInfo": "佣金信息",
-  "commissionRate": "佣金比例",
-  "copyInviteLink": "复制邀请链接",
-  "copySuccess": "复制成功",
-  "inviteCode": "邀请码",
-  "inviteRecords": "邀请记录",
-  "registrationTime": "注册时间",
-  "totalCommission": "累计佣金",
-  "userIdentifier": "用户标识"
+  "commissionInfo": "Шимтгэлийн мэдээлэл",
+  "commissionRate": "Шимтгэлийн хувь",
+  "copyInviteLink": "Урилгын холбоосыг хуулах",
+  "copySuccess": "Амжилттай хуулсан",
+  "inviteCode": "Урилгын код",
+  "inviteRecords": "Урилтын бүртгэл",
+  "registrationTime": "Бүртгүүлсэн огноо",
+  "totalCommission": "Нийт шимтгэл",
+  "userIdentifier": "Хэрэглэгчийн ID"
 }

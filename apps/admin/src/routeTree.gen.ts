@@ -47,6 +47,9 @@ const DashboardAuthControlIndexLazyRouteImport = createFileRoute(
 const DashboardAnnouncementIndexLazyRouteImport = createFileRoute(
   '/dashboard/announcement/',
 )()
+const DashboardAmraanetIndexLazyRouteImport = createFileRoute(
+  '/dashboard/amraanet/',
+)()
 const DashboardAdsIndexLazyRouteImport = createFileRoute('/dashboard/ads/')()
 const DashboardLogTrafficDetailsLazyRouteImport = createFileRoute(
   '/dashboard/log/traffic-details',
@@ -210,6 +213,14 @@ const DashboardAnnouncementIndexLazyRoute =
   } as any).lazy(() =>
     import('./routes/dashboard/announcement/index.lazy').then((d) => d.Route),
   )
+const DashboardAmraanetIndexLazyRoute =
+  DashboardAmraanetIndexLazyRouteImport.update({
+    id: '/amraanet/',
+    path: '/amraanet/',
+    getParentRoute: () => DashboardRouteLazyRoute,
+  } as any).lazy(() =>
+    import('./routes/dashboard/amraanet/index.lazy').then((d) => d.Route),
+  )
 const DashboardAdsIndexLazyRoute = DashboardAdsIndexLazyRouteImport.update({
   id: '/ads/',
   path: '/ads/',
@@ -330,6 +341,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/log/subscribe-traffic': typeof DashboardLogSubscribeTrafficLazyRoute
   '/dashboard/log/traffic-details': typeof DashboardLogTrafficDetailsLazyRoute
   '/dashboard/ads': typeof DashboardAdsIndexLazyRoute
+  '/dashboard/amraanet': typeof DashboardAmraanetIndexLazyRoute
   '/dashboard/announcement': typeof DashboardAnnouncementIndexLazyRoute
   '/dashboard/auth-control': typeof DashboardAuthControlIndexLazyRoute
   '/dashboard/coupon': typeof DashboardCouponIndexLazyRoute
@@ -361,6 +373,7 @@ export interface FileRoutesByTo {
   '/dashboard/log/subscribe-traffic': typeof DashboardLogSubscribeTrafficLazyRoute
   '/dashboard/log/traffic-details': typeof DashboardLogTrafficDetailsLazyRoute
   '/dashboard/ads': typeof DashboardAdsIndexLazyRoute
+  '/dashboard/amraanet': typeof DashboardAmraanetIndexLazyRoute
   '/dashboard/announcement': typeof DashboardAnnouncementIndexLazyRoute
   '/dashboard/auth-control': typeof DashboardAuthControlIndexLazyRoute
   '/dashboard/coupon': typeof DashboardCouponIndexLazyRoute
@@ -394,6 +407,7 @@ export interface FileRoutesById {
   '/dashboard/log/subscribe-traffic': typeof DashboardLogSubscribeTrafficLazyRoute
   '/dashboard/log/traffic-details': typeof DashboardLogTrafficDetailsLazyRoute
   '/dashboard/ads/': typeof DashboardAdsIndexLazyRoute
+  '/dashboard/amraanet/': typeof DashboardAmraanetIndexLazyRoute
   '/dashboard/announcement/': typeof DashboardAnnouncementIndexLazyRoute
   '/dashboard/auth-control/': typeof DashboardAuthControlIndexLazyRoute
   '/dashboard/coupon/': typeof DashboardCouponIndexLazyRoute
@@ -428,6 +442,7 @@ export interface FileRouteTypes {
     | '/dashboard/log/subscribe-traffic'
     | '/dashboard/log/traffic-details'
     | '/dashboard/ads'
+    | '/dashboard/amraanet'
     | '/dashboard/announcement'
     | '/dashboard/auth-control'
     | '/dashboard/coupon'
@@ -459,6 +474,7 @@ export interface FileRouteTypes {
     | '/dashboard/log/subscribe-traffic'
     | '/dashboard/log/traffic-details'
     | '/dashboard/ads'
+    | '/dashboard/amraanet'
     | '/dashboard/announcement'
     | '/dashboard/auth-control'
     | '/dashboard/coupon'
@@ -491,6 +507,7 @@ export interface FileRouteTypes {
     | '/dashboard/log/subscribe-traffic'
     | '/dashboard/log/traffic-details'
     | '/dashboard/ads/'
+    | '/dashboard/amraanet/'
     | '/dashboard/announcement/'
     | '/dashboard/auth-control/'
     | '/dashboard/coupon/'
@@ -631,6 +648,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardAnnouncementIndexLazyRouteImport
       parentRoute: typeof DashboardRouteLazyRoute
     }
+    '/dashboard/amraanet/': {
+      id: '/dashboard/amraanet/'
+      path: '/amraanet'
+      fullPath: '/dashboard/amraanet'
+      preLoaderRoute: typeof DashboardAmraanetIndexLazyRouteImport
+      parentRoute: typeof DashboardRouteLazyRoute
+    }
     '/dashboard/ads/': {
       id: '/dashboard/ads/'
       path: '/ads'
@@ -742,6 +766,7 @@ interface DashboardRouteLazyRouteChildren {
   DashboardLogSubscribeTrafficLazyRoute: typeof DashboardLogSubscribeTrafficLazyRoute
   DashboardLogTrafficDetailsLazyRoute: typeof DashboardLogTrafficDetailsLazyRoute
   DashboardAdsIndexLazyRoute: typeof DashboardAdsIndexLazyRoute
+  DashboardAmraanetIndexLazyRoute: typeof DashboardAmraanetIndexLazyRoute
   DashboardAnnouncementIndexLazyRoute: typeof DashboardAnnouncementIndexLazyRoute
   DashboardAuthControlIndexLazyRoute: typeof DashboardAuthControlIndexLazyRoute
   DashboardCouponIndexLazyRoute: typeof DashboardCouponIndexLazyRoute
@@ -773,6 +798,7 @@ const DashboardRouteLazyRouteChildren: DashboardRouteLazyRouteChildren = {
   DashboardLogSubscribeTrafficLazyRoute: DashboardLogSubscribeTrafficLazyRoute,
   DashboardLogTrafficDetailsLazyRoute: DashboardLogTrafficDetailsLazyRoute,
   DashboardAdsIndexLazyRoute: DashboardAdsIndexLazyRoute,
+  DashboardAmraanetIndexLazyRoute: DashboardAmraanetIndexLazyRoute,
   DashboardAnnouncementIndexLazyRoute: DashboardAnnouncementIndexLazyRoute,
   DashboardAuthControlIndexLazyRoute: DashboardAuthControlIndexLazyRoute,
   DashboardCouponIndexLazyRoute: DashboardCouponIndexLazyRoute,

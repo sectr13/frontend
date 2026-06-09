@@ -2646,4 +2646,29 @@ declare namespace API {
     security: string;
     security_config: SecurityConfig;
   };
+
+  type AmraaNetDevice = {
+    id: number;
+    user_id: number;
+    amraanet_user_id: number;
+    headscale_node_id?: number;
+    machine_key: string;
+    hostname: string;
+    given_name: string;
+    tailscale_ip: string;
+    last_seen?: string;
+    rx_bytes: number;
+    tx_bytes: number;
+    created_at: number;
+    updated_at: number;
+  };
+
+  type AmraaNetDevicesResponse = {
+    total: number;
+    list: AmraaNetDevice[];
+  };
+
+  type AmraaNetSyncResponse = {
+    synced: number;
+  };
 }

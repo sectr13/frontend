@@ -1,12 +1,12 @@
 {
   "stripe": {
     "card": {
-      "loading": "正在加载 Stripe..."
+      "loading": "Stripe ачааллаж байна..."
     },
     "card_name": "",
     "card_number": "",
     "element_error": "",
-    "error": "发生错误",
+    "error": "Алдаа гарлаа",
     "expiry_date": "",
     "loading": "",
     "name_placeholder": "",
@@ -16,8 +16,8 @@
     "processing": "",
     "processing_button": "",
     "qrcode": {
-      "alipay": "使用支付宝扫码支付",
-      "wechat_pay": "使用微信扫码支付"
+      "alipay": "Alipay-р QR кодоор төлөх",
+      "wechat_pay": "WeChat Pay-р QR кодоор төлөх"
     },
     "secure_notice": "",
     "security_code": "",

@@ -1314,4 +1314,12 @@ declare namespace API {
     created_at: number;
     updated_at: number;
   };
+
+  type AmraaNetProfile = {
+    type: string;
+    login_server: string;
+    auth_key: string;
+    default_exit_node?: string;
+    setup_command: string;
+  };
 }

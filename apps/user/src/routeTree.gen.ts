@@ -45,6 +45,9 @@ const mainuserDashboardLazyRouteImport = createFileRoute(
 const mainuserAnnouncementLazyRouteImport = createFileRoute(
   '/(main)/(user)/announcement',
 )()
+const mainuserAmraanetLazyRouteImport = createFileRoute(
+  '/(main)/(user)/amraanet',
+)()
 const mainuserAffiliateLazyRouteImport = createFileRoute(
   '/(main)/(user)/affiliate',
 )()
@@ -185,6 +188,15 @@ const mainuserAnnouncementLazyRoute = mainuserAnnouncementLazyRouteImport
   .lazy(() =>
     import('./routes/(main)/(user)/announcement.lazy').then((d) => d.Route),
   )
+const mainuserAmraanetLazyRoute = mainuserAmraanetLazyRouteImport
+  .update({
+    id: '/amraanet',
+    path: '/amraanet',
+    getParentRoute: () => mainuserRouteLazyRoute,
+  } as any)
+  .lazy(() =>
+    import('./routes/(main)/(user)/amraanet.lazy').then((d) => d.Route),
+  )
 const mainuserAffiliateLazyRoute = mainuserAffiliateLazyRouteImport
   .update({
     id: '/affiliate',
@@ -213,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/oauth/$platform': typeof OauthPlatformLazyRoute
   '/auth': typeof AuthIndexLazyRoute
   '/affiliate': typeof mainuserAffiliateLazyRoute
+  '/amraanet': typeof mainuserAmraanetLazyRoute
   '/announcement': typeof mainuserAnnouncementLazyRoute
   '/dashboard': typeof mainuserDashboardLazyRoute
   '/document': typeof mainuserDocumentLazyRoute
@@ -233,6 +246,7 @@ export interface FileRoutesByTo {
   '/oauth/$platform': typeof OauthPlatformLazyRoute
   '/auth': typeof AuthIndexLazyRoute
   '/affiliate': typeof mainuserAffiliateLazyRoute
+  '/amraanet': typeof mainuserAmraanetLazyRoute
   '/announcement': typeof mainuserAnnouncementLazyRoute
   '/dashboard': typeof mainuserDashboardLazyRoute
   '/document': typeof mainuserDocumentLazyRoute
@@ -256,6 +270,7 @@ export interface FileRoutesById {
   '/(main)/': typeof mainIndexLazyRoute
   '/auth/': typeof AuthIndexLazyRoute
   '/(main)/(user)/affiliate': typeof mainuserAffiliateLazyRoute
+  '/(main)/(user)/amraanet': typeof mainuserAmraanetLazyRoute
   '/(main)/(user)/announcement': typeof mainuserAnnouncementLazyRoute
   '/(main)/(user)/dashboard': typeof mainuserDashboardLazyRoute
   '/(main)/(user)/document': typeof mainuserDocumentLazyRoute
@@ -278,6 +293,7 @@ export interface FileRouteTypes {
     | '/oauth/$platform'
     | '/auth'
     | '/affiliate'
+    | '/amraanet'
     | '/announcement'
     | '/dashboard'
     | '/document'
@@ -298,6 +314,7 @@ export interface FileRouteTypes {
     | '/oauth/$platform'
     | '/auth'
     | '/affiliate'
+    | '/amraanet'
     | '/announcement'
     | '/dashboard'
     | '/document'
@@ -320,6 +337,7 @@ export interface FileRouteTypes {
     | '/(main)/'
     | '/auth/'
     | '/(main)/(user)/affiliate'
+    | '/(main)/(user)/amraanet'
     | '/(main)/(user)/announcement'
     | '/(main)/(user)/dashboard'
     | '/(main)/(user)/document'
@@ -467,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof mainuserAnnouncementLazyRouteImport
       parentRoute: typeof mainuserRouteLazyRoute
     }
+    '/(main)/(user)/amraanet': {
+      id: '/(main)/(user)/amraanet'
+      path: '/amraanet'
+      fullPath: '/amraanet'
+      preLoaderRoute: typeof mainuserAmraanetLazyRouteImport
+      parentRoute: typeof mainuserRouteLazyRoute
+    }
     '/(main)/(user)/affiliate': {
       id: '/(main)/(user)/affiliate'
       path: '/affiliate'
@@ -486,6 +511,7 @@ declare module '@tanstack/react-router' {
 
 interface mainuserRouteLazyRouteChildren {
   mainuserAffiliateLazyRoute: typeof mainuserAffiliateLazyRoute
+  mainuserAmraanetLazyRoute: typeof mainuserAmraanetLazyRoute
   mainuserAnnouncementLazyRoute: typeof mainuserAnnouncementLazyRoute
   mainuserDashboardLazyRoute: typeof mainuserDashboardLazyRoute
   mainuserDocumentLazyRoute: typeof mainuserDocumentLazyRoute
@@ -498,6 +524,7 @@ interface mainuserRouteLazyRouteChildren {
 
 const mainuserRouteLazyRouteChildren: mainuserRouteLazyRouteChildren = {
   mainuserAffiliateLazyRoute: mainuserAffiliateLazyRoute,
+  mainuserAmraanetLazyRoute: mainuserAmraanetLazyRoute,
   mainuserAnnouncementLazyRoute: mainuserAnnouncementLazyRoute,
   mainuserDashboardLazyRoute: mainuserDashboardLazyRoute,
   mainuserDocumentLazyRoute: mainuserDocumentLazyRoute,

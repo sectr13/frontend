@@ -1,0 +1,13 @@
+{
+  "devices": "AmraaNet Devices",
+  "syncDevices": "Sync Devices",
+  "syncing": "Syncing…",
+  "syncSuccess": "Synced {{count}} device(s)",
+  "syncError": "Sync failed",
+  "hostname": "Hostname",
+  "userId": "User ID",
+  "tailscaleIp": "Tailscale IP",
+  "lastSeen": "Last Seen",
+  "rxBytes": "RX",
+  "txBytes": "TX"
+}

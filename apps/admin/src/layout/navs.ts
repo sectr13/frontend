@@ -44,6 +44,11 @@ export function useNavs() {
             url: "/dashboard/product",
             icon: "flat-color-icons:shop",
           },
+          {
+            title: t("AmraaNet Devices", "AmraaNet Devices"),
+            url: "/dashboard/amraanet",
+            icon: "flat-color-icons:connection",
+          },
         ],
       },
 
