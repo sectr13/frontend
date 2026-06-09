@@ -2648,19 +2648,19 @@ declare namespace API {
   };
 
   type AmraaNetDevice = {
-    id: number;
-    user_id: number;
-    amraanet_user_id: number;
-    headscale_node_id?: number;
-    machine_key: string;
-    hostname: string;
-    given_name: string;
-    tailscale_ip: string;
-    last_seen?: string;
-    rx_bytes: number;
-    tx_bytes: number;
-    created_at: number;
-    updated_at: number;
+    Id: number;
+    UserId: number;
+    AmraanetUserId: number;
+    HeadscaleNodeId?: number;
+    MachineKey: string;
+    Hostname: string;
+    GivenName: string;
+    TailscaleIp: string;
+    LastSeen?: string;
+    RxBytes: number;
+    TxBytes: number;
+    CreatedAt?: string;
+    UpdatedAt?: string;
   };
 
   type AmraaNetDevicesResponse = {

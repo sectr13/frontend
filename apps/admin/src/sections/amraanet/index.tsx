@@ -37,6 +37,63 @@ export default function AmraaNetDevices() {
   return (
     <ProTable<API.AmraaNetDevice, Record<string, unknown>>
       action={ref}
+      columns={[
+        {
+          accessorKey: "GivenName",
+          header: t("hostname", "Hostname"),
+          cell: ({ row }) => {
+            const d = row.original as API.AmraaNetDevice;
+            return (
+              <span className="font-medium">
+                {d.GivenName || d.Hostname || "—"}
+              </span>
+            );
+          },
+        },
+        {
+          accessorKey: "UserId",
+          header: t("userId", "User ID"),
+        },
+        {
+          accessorKey: "TailscaleIp",
+          header: t("tailscaleIp", "Tailscale IP"),
+          cell: ({ row }) => {
+            const ip = (row.original as API.AmraaNetDevice).TailscaleIp;
+            return ip ? (
+              <Badge className="font-mono text-xs" variant="secondary">
+                {ip}
+              </Badge>
+            ) : (
+              "—"
+            );
+          },
+        },
+        {
+          accessorKey: "LastSeen",
+          header: t("lastSeen", "Last Seen"),
+          cell: ({ row }) => {
+            const d = row.original as API.AmraaNetDevice;
+            if (!d.LastSeen) return "—";
+            return formatDate(new Date(d.LastSeen));
+          },
+        },
+        {
+          accessorKey: "RxBytes",
+          header: t("rxBytes", "RX"),
+          cell: ({ row }) => {
+            const v = (row.original as API.AmraaNetDevice).RxBytes;
+            return v ? formatBytes(v) : "0 B";
+          },
+        },
+        {
+          accessorKey: "TxBytes",
+          header: t("txBytes", "TX"),
+          cell: ({ row }) => {
+            const v = (row.original as API.AmraaNetDevice).TxBytes;
+            return v ? formatBytes(v) : "0 B";
+          },
+        },
+      ]}
       header={{
         title: t("devices", "AmraaNet Devices"),
         toolbar: (
@@ -56,63 +113,6 @@ export default function AmraaNetDevices() {
           </Button>
         ),
       }}
-      columns={[
-        {
-          accessorKey: "hostname",
-          header: t("hostname", "Hostname"),
-          cell: ({ row }) => {
-            const d = row.original as API.AmraaNetDevice;
-            return (
-              <span className="font-medium">
-                {d.given_name || d.hostname || "—"}
-              </span>
-            );
-          },
-        },
-        {
-          accessorKey: "user_id",
-          header: t("userId", "User ID"),
-        },
-        {
-          accessorKey: "tailscale_ip",
-          header: t("tailscaleIp", "Tailscale IP"),
-          cell: ({ row }) => {
-            const ip = (row.original as API.AmraaNetDevice).tailscale_ip;
-            return ip ? (
-              <Badge className="font-mono text-xs" variant="secondary">
-                {ip}
-              </Badge>
-            ) : (
-              "—"
-            );
-          },
-        },
-        {
-          accessorKey: "last_seen",
-          header: t("lastSeen", "Last Seen"),
-          cell: ({ row }) => {
-            const d = row.original as API.AmraaNetDevice;
-            if (!d.last_seen) return "—";
-            return formatDate(new Date(d.last_seen));
-          },
-        },
-        {
-          accessorKey: "rx_bytes",
-          header: t("rxBytes", "RX"),
-          cell: ({ row }) => {
-            const v = (row.original as API.AmraaNetDevice).rx_bytes;
-            return v ? formatBytes(v) : "0 B";
-          },
-        },
-        {
-          accessorKey: "tx_bytes",
-          header: t("txBytes", "TX"),
-          cell: ({ row }) => {
-            const v = (row.original as API.AmraaNetDevice).tx_bytes;
-            return v ? formatBytes(v) : "0 B";
-          },
-        },
-      ]}
       request={async (pagination) => {
         const { data } = await getAmraaNetDevices({
           page: pagination.page,
