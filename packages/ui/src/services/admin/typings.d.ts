@@ -2067,6 +2067,7 @@ declare namespace API {
 
   type Subscribe = {
     id: number;
+    type: string;
     name: string;
     language: string;
     description: string;

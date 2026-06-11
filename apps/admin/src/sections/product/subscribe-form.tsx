@@ -63,6 +63,7 @@ interface SubscribeFormProps<T> {
 }
 
 const defaultValues = {
+  type: "",
   inventory: -1,
   speed_limit: 0,
   device_limit: 0,
@@ -96,6 +97,7 @@ export default function SubscribeForm<T extends Record<string, any>>({
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const formSchema = z.object({
+    type: z.string().optional(),
     name: z.string(),
     description: z.string().optional(),
     unit_price: z.number(),
@@ -312,6 +314,49 @@ export default function SubscribeForm<T extends Record<string, any>>({
 
                 <TabsContent className="space-y-4" value="basic">
                   <div className="grid gap-6">
+                    <FormField
+                      control={form.control}
+                      name="type"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {t("form.productType", "Product Type")}
+                          </FormLabel>
+                          <FormControl>
+                            <Combobox
+                              placeholder={t(
+                                "form.selectProductType",
+                                "Select product type"
+                              )}
+                              {...field}
+                              onChange={(value) => {
+                                form.setValue(field.name, value ?? "");
+                              }}
+                              options={[
+                                {
+                                  label: t("form.productTypeProxy", "Proxy"),
+                                  value: "",
+                                },
+                                {
+                                  label: t(
+                                    "form.productTypeAmraaNet",
+                                    "AmraaNet VPN"
+                                  ),
+                                  value: "amraanet",
+                                },
+                              ]}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            {t(
+                              "form.productTypeDescription",
+                              "AmraaNet plans gate access to the VPN service."
+                            )}
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}

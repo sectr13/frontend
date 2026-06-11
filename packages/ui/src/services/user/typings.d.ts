@@ -1315,12 +1315,24 @@ declare namespace API {
     updated_at: number;
   };
 
+  type AmraaNetPlan = {
+    id: number;
+    name: string;
+    description: string;
+    unit_price: number;
+    unit_time: string;
+  };
+
   type AmraaNetProfile = {
-    type: string;
-    login_server: string;
-    auth_key: string;
+    activated: boolean;
+    // activated = false: available plans to purchase
+    plans?: AmraaNetPlan[];
+    // activated = true: join profile fields
+    type?: string;
+    login_server?: string;
+    auth_key?: string;
     default_exit_node?: string;
-    setup_command: string;
+    setup_command?: string;
   };
 
   type AmraaNetDevice = {

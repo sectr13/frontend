@@ -1,11 +1,13 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
@@ -50,6 +52,7 @@ export default function AmraaNet() {
 
   const { data: devicesData } = useQuery({
     queryKey: ["amraanet-devices"],
+    enabled: data?.activated === true,
     queryFn: async () => {
       const res = await getUserAmraaNetDevices({ page: 1, size: 50 });
       return res.data.data as API.AmraaNetDevicesResponse;
@@ -82,6 +85,10 @@ export default function AmraaNet() {
     );
   }
 
+  if (!data.activated) {
+    return <NotActivatedView plans={data.plans ?? []} />;
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {/* Profile card */}
@@ -112,7 +119,7 @@ export default function AmraaNet() {
               />
               <CopyToClipboard
                 onCopy={() => toast.success(t("copied", "Copied!"))}
-                text={data.login_server}
+                text={data.login_server ?? ""}
               >
                 <Button size="icon" title={t("copy", "Copy")} variant="outline">
                   <Icon className="h-4 w-4" icon="uil:copy" />
@@ -148,7 +155,7 @@ export default function AmraaNet() {
               </Button>
               <CopyToClipboard
                 onCopy={() => toast.success(t("copied", "Copied!"))}
-                text={data.auth_key}
+                text={data.auth_key ?? ""}
               >
                 <Button size="icon" title={t("copy", "Copy")} variant="outline">
                   <Icon className="h-4 w-4" icon="uil:copy" />
@@ -172,7 +179,7 @@ export default function AmraaNet() {
               />
               <CopyToClipboard
                 onCopy={() => toast.success(t("copied", "Copied!"))}
-                text={data.setup_command}
+                text={data.setup_command ?? ""}
               >
                 <Button size="icon" title={t("copy", "Copy")} variant="outline">
                   <Icon className="h-4 w-4" icon="uil:copy" />
@@ -228,7 +235,7 @@ export default function AmraaNet() {
                 </code>
                 <CopyToClipboard
                   onCopy={() => toast.success(t("copied", "Copied!"))}
-                  text={data.setup_command}
+                  text={data.setup_command ?? ""}
                 >
                   <Button size="icon" variant="outline">
                     <Icon className="h-4 w-4" icon="uil:copy" />
@@ -257,7 +264,7 @@ export default function AmraaNet() {
                 </code>
                 <CopyToClipboard
                   onCopy={() => toast.success(t("copied", "Copied!"))}
-                  text={data.setup_command}
+                  text={data.setup_command ?? ""}
                 >
                   <Button size="icon" variant="outline">
                     <Icon className="h-4 w-4" icon="uil:copy" />
@@ -284,7 +291,7 @@ export default function AmraaNet() {
                     </code>
                     <CopyToClipboard
                       onCopy={() => toast.success(t("copied", "Copied!"))}
-                      text={data.login_server}
+                      text={data.login_server ?? ""}
                     >
                       <Button size="icon" variant="outline">
                         <Icon className="h-4 w-4" icon="uil:copy" />
@@ -310,7 +317,7 @@ export default function AmraaNet() {
                     </Button>
                     <CopyToClipboard
                       onCopy={() => toast.success(t("copied", "Copied!"))}
-                      text={data.auth_key}
+                      text={data.auth_key ?? ""}
                     >
                       <Button size="icon" variant="outline">
                         <Icon className="h-4 w-4" icon="uil:copy" />
@@ -339,7 +346,7 @@ export default function AmraaNet() {
                     </code>
                     <CopyToClipboard
                       onCopy={() => toast.success(t("copied", "Copied!"))}
-                      text={data.login_server}
+                      text={data.login_server ?? ""}
                     >
                       <Button size="icon" variant="outline">
                         <Icon className="h-4 w-4" icon="uil:copy" />
@@ -365,7 +372,7 @@ export default function AmraaNet() {
                     </Button>
                     <CopyToClipboard
                       onCopy={() => toast.success(t("copied", "Copied!"))}
-                      text={data.auth_key}
+                      text={data.auth_key ?? ""}
                     >
                       <Button size="icon" variant="outline">
                         <Icon className="h-4 w-4" icon="uil:copy" />
@@ -434,5 +441,101 @@ export default function AmraaNet() {
         </Card>
       )}
     </div>
+  );
+}
+
+function NotActivatedView({ plans }: { plans: API.AmraaNetPlan[] }) {
+  const { t } = useTranslation("amraanet");
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Hero explanation card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Icon className="h-5 w-5 text-primary" icon="uil:wifi" />
+            <CardTitle>{t("title", "AmraaNet Service")}</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+          <p className="text-muted-foreground text-sm">
+            {t(
+              "notActivatedDesc",
+              "Subscribe to AmraaNet to get a secure VPN powered by Tailscale and Headscale. You will receive a personal auth key and one-command setup for all your devices."
+            )}
+          </p>
+          <ul className="grid gap-1.5 text-muted-foreground text-sm">
+            <li className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
+              {t("feature1", "Encrypted mesh VPN — no central relay")}
+            </li>
+            <li className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
+              {t("feature2", "Works on macOS, Windows, Linux, iOS, Android")}
+            </li>
+            <li className="flex items-center gap-2">
+              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
+              {t("feature3", "One-command setup")}
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
+
+      {/* Plans */}
+      {plans.length > 0 ? (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {plans.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} />
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground text-sm">
+              {t(
+                "noPlansAvailable",
+                "No plans are currently available. Please check back later."
+              )}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function PlanCard({ plan }: { plan: API.AmraaNetPlan }) {
+  const { t } = useTranslation("amraanet");
+
+  const price = (plan.unit_price / 100).toFixed(2);
+  const period =
+    plan.unit_time === "month"
+      ? t("perMonth", "/ month")
+      : plan.unit_time === "year"
+        ? t("perYear", "/ year")
+        : `/ ${plan.unit_time}`;
+
+  return (
+    <Card className="flex flex-col">
+      <CardHeader>
+        <CardTitle className="text-base">{plan.name}</CardTitle>
+        {plan.description && (
+          <p className="text-muted-foreground text-sm">{plan.description}</p>
+        )}
+      </CardHeader>
+      <CardContent className="flex-1">
+        <p className="font-bold text-2xl">
+          ${price}
+          <span className="ml-1 font-normal text-muted-foreground text-sm">
+            {period}
+          </span>
+        </p>
+      </CardContent>
+      <CardFooter>
+        <Button asChild className="w-full">
+          <Link to="/subscribe">{t("subscribeNow", "Subscribe Now")}</Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
