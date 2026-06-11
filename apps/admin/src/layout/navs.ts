@@ -49,6 +49,11 @@ export function useNavs() {
             url: "/dashboard/amraanet",
             icon: "flat-color-icons:connection",
           },
+          {
+            title: t("AmraaNet Exit Nodes", "AmraaNet Exit Nodes"),
+            url: "/dashboard/amraanet/exit-nodes",
+            icon: "flat-color-icons:globe",
+          },
         ],
       },
 

@@ -85,6 +85,9 @@ const DashboardLogCommissionLazyRouteImport = createFileRoute(
 const DashboardLogBalanceLazyRouteImport = createFileRoute(
   '/dashboard/log/balance',
 )()
+const DashboardAmraanetExitNodesLazyRouteImport = createFileRoute(
+  '/dashboard/amraanet/exit-nodes',
+)()
 
 const DashboardRouteLazyRoute = DashboardRouteLazyRouteImport.update({
   id: '/dashboard',
@@ -321,6 +324,14 @@ const DashboardLogBalanceLazyRoute = DashboardLogBalanceLazyRouteImport.update({
 } as any).lazy(() =>
   import('./routes/dashboard/log/balance.lazy').then((d) => d.Route),
 )
+const DashboardAmraanetExitNodesLazyRoute =
+  DashboardAmraanetExitNodesLazyRouteImport.update({
+    id: '/amraanet/exit-nodes',
+    path: '/amraanet/exit-nodes',
+    getParentRoute: () => DashboardRouteLazyRoute,
+  } as any).lazy(() =>
+    import('./routes/dashboard/amraanet/exit-nodes.lazy').then((d) => d.Route),
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexLazyRoute
@@ -328,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/nodes': typeof DashboardNodesLazyRoute
   '/dashboard/servers': typeof DashboardServersLazyRoute
   '/dashboard/': typeof DashboardIndexLazyRoute
+  '/dashboard/amraanet/exit-nodes': typeof DashboardAmraanetExitNodesLazyRoute
   '/dashboard/log/balance': typeof DashboardLogBalanceLazyRoute
   '/dashboard/log/commission': typeof DashboardLogCommissionLazyRoute
   '/dashboard/log/email': typeof DashboardLogEmailLazyRoute
@@ -360,6 +372,7 @@ export interface FileRoutesByTo {
   '/dashboard/nodes': typeof DashboardNodesLazyRoute
   '/dashboard/servers': typeof DashboardServersLazyRoute
   '/dashboard': typeof DashboardIndexLazyRoute
+  '/dashboard/amraanet/exit-nodes': typeof DashboardAmraanetExitNodesLazyRoute
   '/dashboard/log/balance': typeof DashboardLogBalanceLazyRoute
   '/dashboard/log/commission': typeof DashboardLogCommissionLazyRoute
   '/dashboard/log/email': typeof DashboardLogEmailLazyRoute
@@ -394,6 +407,7 @@ export interface FileRoutesById {
   '/dashboard/nodes': typeof DashboardNodesLazyRoute
   '/dashboard/servers': typeof DashboardServersLazyRoute
   '/dashboard/': typeof DashboardIndexLazyRoute
+  '/dashboard/amraanet/exit-nodes': typeof DashboardAmraanetExitNodesLazyRoute
   '/dashboard/log/balance': typeof DashboardLogBalanceLazyRoute
   '/dashboard/log/commission': typeof DashboardLogCommissionLazyRoute
   '/dashboard/log/email': typeof DashboardLogEmailLazyRoute
@@ -429,6 +443,7 @@ export interface FileRouteTypes {
     | '/dashboard/nodes'
     | '/dashboard/servers'
     | '/dashboard/'
+    | '/dashboard/amraanet/exit-nodes'
     | '/dashboard/log/balance'
     | '/dashboard/log/commission'
     | '/dashboard/log/email'
@@ -461,6 +476,7 @@ export interface FileRouteTypes {
     | '/dashboard/nodes'
     | '/dashboard/servers'
     | '/dashboard'
+    | '/dashboard/amraanet/exit-nodes'
     | '/dashboard/log/balance'
     | '/dashboard/log/commission'
     | '/dashboard/log/email'
@@ -494,6 +510,7 @@ export interface FileRouteTypes {
     | '/dashboard/nodes'
     | '/dashboard/servers'
     | '/dashboard/'
+    | '/dashboard/amraanet/exit-nodes'
     | '/dashboard/log/balance'
     | '/dashboard/log/commission'
     | '/dashboard/log/email'
@@ -746,6 +763,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardLogBalanceLazyRouteImport
       parentRoute: typeof DashboardRouteLazyRoute
     }
+    '/dashboard/amraanet/exit-nodes': {
+      id: '/dashboard/amraanet/exit-nodes'
+      path: '/amraanet/exit-nodes'
+      fullPath: '/dashboard/amraanet/exit-nodes'
+      preLoaderRoute: typeof DashboardAmraanetExitNodesLazyRouteImport
+      parentRoute: typeof DashboardRouteLazyRoute
+    }
   }
 }
 
@@ -753,6 +777,7 @@ interface DashboardRouteLazyRouteChildren {
   DashboardNodesLazyRoute: typeof DashboardNodesLazyRoute
   DashboardServersLazyRoute: typeof DashboardServersLazyRoute
   DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
+  DashboardAmraanetExitNodesLazyRoute: typeof DashboardAmraanetExitNodesLazyRoute
   DashboardLogBalanceLazyRoute: typeof DashboardLogBalanceLazyRoute
   DashboardLogCommissionLazyRoute: typeof DashboardLogCommissionLazyRoute
   DashboardLogEmailLazyRoute: typeof DashboardLogEmailLazyRoute
@@ -785,6 +810,7 @@ const DashboardRouteLazyRouteChildren: DashboardRouteLazyRouteChildren = {
   DashboardNodesLazyRoute: DashboardNodesLazyRoute,
   DashboardServersLazyRoute: DashboardServersLazyRoute,
   DashboardIndexLazyRoute: DashboardIndexLazyRoute,
+  DashboardAmraanetExitNodesLazyRoute: DashboardAmraanetExitNodesLazyRoute,
   DashboardLogBalanceLazyRoute: DashboardLogBalanceLazyRoute,
   DashboardLogCommissionLazyRoute: DashboardLogCommissionLazyRoute,
   DashboardLogEmailLazyRoute: DashboardLogEmailLazyRoute,

@@ -12,3 +12,18 @@ export async function getAmraaNetProfile(options?: { [key: string]: any }) {
     }
   );
 }
+
+/** List the authenticated user's AmraaNet devices GET /v1/public/amraanet/devices */
+export async function getUserAmraaNetDevices(
+  params: { page?: number; size?: number },
+  options?: { [key: string]: any }
+) {
+  return request<API.Response & { data?: API.AmraaNetDevicesResponse }>(
+    `${import.meta.env.VITE_API_PREFIX || ""}/v1/public/amraanet/devices`,
+    {
+      method: "GET",
+      params: { ...params },
+      ...(options || {}),
+    }
+  );
+}

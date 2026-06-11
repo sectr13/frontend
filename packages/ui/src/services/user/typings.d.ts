@@ -1322,4 +1322,22 @@ declare namespace API {
     default_exit_node?: string;
     setup_command: string;
   };
+
+  type AmraaNetDevice = {
+    Id: number;
+    UserId: number;
+    HeadscaleNodeId?: number;
+    MachineKey: string;
+    Hostname: string;
+    GivenName: string;
+    TailscaleIp: string;
+    LastSeen?: string;
+    RxBytes: number;
+    TxBytes: number;
+  };
+
+  type AmraaNetDevicesResponse = {
+    total: number;
+    list: AmraaNetDevice[];
+  };
 }

@@ -12,13 +12,25 @@ import {
 import { Input } from "@workspace/ui/components/input";
 import { Separator } from "@workspace/ui/components/separator";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@workspace/ui/components/table";
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@workspace/ui/components/tabs";
 import { Icon } from "@workspace/ui/composed/icon";
-import { getAmraaNetProfile } from "@workspace/ui/services/user/amraanet";
+import {
+  getAmraaNetProfile,
+  getUserAmraaNetDevices,
+} from "@workspace/ui/services/user/amraanet";
+import { formatBytes } from "@workspace/ui/utils/formatting";
 import { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
@@ -33,6 +45,14 @@ export default function AmraaNet() {
     queryFn: async () => {
       const res = await getAmraaNetProfile();
       return res.data.data as API.AmraaNetProfile;
+    },
+  });
+
+  const { data: devicesData } = useQuery({
+    queryKey: ["amraanet-devices"],
+    queryFn: async () => {
+      const res = await getUserAmraaNetDevices({ page: 1, size: 50 });
+      return res.data.data as API.AmraaNetDevicesResponse;
     },
   });
 
@@ -358,6 +378,61 @@ export default function AmraaNet() {
           </Tabs>
         </CardContent>
       </Card>
+
+      {/* My Devices */}
+      {devicesData && devicesData.list.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">
+              {t("myDevices", "My Devices")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t("hostname", "Hostname")}</TableHead>
+                  <TableHead>{t("tailscaleIp", "Tailscale IP")}</TableHead>
+                  <TableHead>{t("lastSeen", "Last Seen")}</TableHead>
+                  <TableHead className="text-right">
+                    {t("rxBytes", "RX")} / {t("txBytes", "TX")}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {devicesData.list.map((device) => (
+                  <TableRow key={device.Id}>
+                    <TableCell className="font-medium">
+                      {device.GivenName || device.Hostname || "—"}
+                    </TableCell>
+                    <TableCell>
+                      {device.TailscaleIp ? (
+                        <Badge
+                          className="font-mono text-xs"
+                          variant="secondary"
+                        >
+                          {device.TailscaleIp}
+                        </Badge>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">
+                      {device.LastSeen
+                        ? new Date(device.LastSeen).toLocaleString()
+                        : "—"}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-xs">
+                      {formatBytes(device.RxBytes) ?? "0 B"} /{" "}
+                      {formatBytes(device.TxBytes) ?? "0 B"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

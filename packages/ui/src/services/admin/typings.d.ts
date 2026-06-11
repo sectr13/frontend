@@ -2671,4 +2671,37 @@ declare namespace API {
   type AmraaNetSyncResponse = {
     synced: number;
   };
+
+  type AmraaNetExitNode = {
+    Id: number;
+    Name: string;
+    Region: string;
+    Country: string;
+    Hostname: string;
+    TailscaleIp: string;
+    PublicIp: string;
+    HeadscaleNodeId?: number;
+    Enabled: boolean;
+    IsDefault: boolean;
+    Status: number;
+    CreatedAt?: string;
+    UpdatedAt?: string;
+  };
+
+  type AmraaNetExitNodesResponse = {
+    list: AmraaNetExitNode[];
+  };
+
+  type UpsertExitNodeRequest = {
+    id?: number;
+    name: string;
+    region: string;
+    country: string;
+    hostname: string;
+    tailscale_ip: string;
+    public_ip: string;
+    headscale_node_id?: number;
+    enabled: boolean;
+    is_default: boolean;
+  };
 }
