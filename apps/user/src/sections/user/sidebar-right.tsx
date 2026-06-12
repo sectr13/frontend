@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -8,11 +7,9 @@ import {
   CardTitle,
 } from "@workspace/ui/components/card";
 import { Sidebar, SidebarContent } from "@workspace/ui/components/sidebar";
-import { Icon } from "@workspace/ui/composed/icon";
 import { isBrowser } from "@workspace/ui/utils/index";
-import CopyToClipboard from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { CopyButton } from "@/components/copy-button";
 import { Display } from "@/components/display";
 import Recharge from "@/sections/subscribe/recharge";
 import { useGlobalStore } from "@/stores/global";
@@ -63,21 +60,11 @@ export function SidebarRight({
               <CardTitle className="font-medium text-sm">
                 {t("inviteCode", "Invite Code")}
               </CardTitle>
-              <CopyToClipboard
-                onCopy={(_text: string, result: boolean) => {
-                  if (result) {
-                    toast.success(t("copySuccess", "Copy Success"));
-                  }
-                }}
-                text={`${isBrowser() && location?.origin}/#/auth?invite=${user?.refer_code}`}
-              >
-                <Button className="size-5 p-0" variant="ghost">
-                  <Icon
-                    className="text-2xl text-primary"
-                    icon="mdi:content-copy"
-                  />
-                </Button>
-              </CopyToClipboard>
+              <CopyButton
+                copiedLabel={t("copySuccess", "Copied!")}
+                copyLabel={t("copy", "Copy")}
+                text={`${isBrowser() ? location?.origin : ""}/#/auth?invite=${user?.refer_code}`}
+              />
             </CardHeader>
             <CardContent className="truncate p-3 font-bold">
               {user?.refer_code}

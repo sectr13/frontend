@@ -37,7 +37,7 @@ export const Route = createRootRouteWithContext()({
     }, []);
 
     const { site } = common;
-    const title = site.site_name || "Loading...";
+    const title = site.site_name || "Amraa Nets";
     const description = site.site_desc || "";
     const keywords = site.keywords || "";
     const logo = site.site_logo || "";

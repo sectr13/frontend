@@ -11,6 +11,8 @@
   "createTicketDescription": "Хүсэлтийн тайлбар оруулна уу",
   "description": "Тайлбар",
   "inputPlaceholder": "Энд оруулна уу",
+  "noTickets": "Хүсэлт байхгүй",
+  "noTicketsDesc": "Бид танд үргэлж туслахад бэлэн байна.",
   "reply": "Хариулах",
   "status": {
     "0": "Төлөв",

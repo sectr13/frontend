@@ -1,81 +1,49 @@
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import { Icon } from "@workspace/ui/composed/icon";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 export function Stats() {
   const { t } = useTranslation("main");
 
-  const list = [
+  const items = [
     {
-      name: t("users", "Users"),
-      description: t("users_description", "Trusted by users worldwide"),
-      icon: (
-        <DotLottieReact
-          autoplay
-          className="size-24"
-          loop
-          src="./assets/lotties/users.json"
-        />
-      ),
+      icon: "uil:shield-check",
+      name: t("trustSecure", "Secure Access"),
+      description: t("trustSecureDesc", "End-to-end encrypted connections"),
     },
     {
-      name: t("servers", "Servers"),
+      icon: "uil:globe",
+      name: t("trustGlobal", "Global Routes"),
+      description: t("trustGlobalDesc", "Low-latency worldwide network"),
+    },
+    {
+      icon: "uil:bolt",
+      name: t("trustSetup", "Easy Setup"),
       description: t(
-        "servers_description",
-        "High-performance servers globally"
-      ),
-      icon: (
-        <DotLottieReact
-          autoplay
-          className="size-24"
-          loop
-          src="./assets/lotties/servers.json"
-        />
-      ),
-    },
-    {
-      name: t("locations", "Locations"),
-      description: t("locations_description", "Available in multiple regions"),
-      icon: (
-        <DotLottieReact
-          autoplay
-          className="size-24"
-          loop
-          src="./assets/lotties/locations.json"
-        />
+        "trustSetupDesc",
+        "Connect in minutes, no expertise needed"
       ),
     },
   ];
+
   return (
     <motion.section
-      animate={{ opacity: 1, y: 0 }}
-      className="z-10 grid w-full grid-cols-1 divide-y-2 divide-muted rounded-lg sm:grid-cols-3 sm:divide-x-2 sm:divide-y-0"
-      initial={{ opacity: 0, y: 50 }}
-      transition={{ duration: 1, ease: "easeOut" }}
-      viewport={{ once: true, amount: 0.8 }}
+      className="grid grid-cols-1 divide-y divide-muted rounded-xl border bg-muted/30 sm:grid-cols-3 sm:divide-x sm:divide-y-0"
+      initial={{ opacity: 0, y: 20 }}
+      transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+      viewport={{ once: true }}
       whileInView={{ opacity: 1, y: 0 }}
     >
-      {list.map((item, index) => (
-        <motion.div
-          className="mx-auto flex w-10/12 items-center justify-start px-4 py-4 sm:w-full sm:justify-center sm:py-6"
-          initial={{ opacity: 0, scale: 0.8 }}
-          key={item.name}
-          transition={{ duration: 0.8, delay: index * 0.3, ease: "easeOut" }}
-          viewport={{ once: true, amount: 0.8 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-        >
-          <div className="flex w-full items-center sm:w-auto">
-            <div className="mr-4 flex h-20 w-20 items-center justify-center rounded-full">
-              {item.icon}
-            </div>
-            <div className="flex flex-col">
-              <p className="font-semibold text-lg">{item.name}</p>
-              <p className="text-muted-foreground text-sm">
-                {item.description}
-              </p>
-            </div>
+      {items.map((item) => (
+        <div className="flex items-start gap-3 px-6 py-5" key={item.name}>
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+            <Icon className="size-5 text-primary" icon={item.icon} />
           </div>
-        </motion.div>
+          <div>
+            <p className="font-semibold text-sm">{item.name}</p>
+            <p className="text-muted-foreground text-xs">{item.description}</p>
+          </div>
+        </div>
       ))}
     </motion.section>
   );

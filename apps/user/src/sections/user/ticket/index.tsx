@@ -5,7 +5,6 @@ import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
@@ -31,7 +30,6 @@ import { Label } from "@workspace/ui/components/label";
 import { ScrollArea } from "@workspace/ui/components/scroll-area";
 import { Textarea } from "@workspace/ui/components/textarea";
 import { ConfirmButton } from "@workspace/ui/composed/confirm-button";
-import Empty from "@workspace/ui/composed/empty";
 import { Icon } from "@workspace/ui/composed/icon";
 import {
   ProList,
@@ -49,6 +47,7 @@ import { formatDate } from "@workspace/ui/utils/formatting";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { EmptyState } from "@/components/empty-state";
 
 export default function Ticket() {
   const { t } = useTranslation("ticket");
@@ -60,13 +59,13 @@ export default function Ticket() {
     4: t("status.4", "Closed"),
   };
 
-  const [ticketId, setTicketId] = useState<any>(null);
+  const [ticketId, setTicketId] = useState<number | null>(null);
   const [message, setMessage] = useState("");
 
   const { data: ticket, refetch: refetchTicket } = useQuery({
     queryKey: ["getUserTicketDetails", ticketId],
     queryFn: async () => {
-      const { data } = await getUserTicketDetails({ id: ticketId });
+      const { data } = await getUserTicketDetails({ id: ticketId! });
       return data.data as API.Ticket;
     },
     enabled: !!ticketId,
@@ -93,7 +92,16 @@ export default function Ticket() {
     <>
       <ProList<API.Ticket, { status: number }>
         action={ref}
-        empty={<Empty />}
+        empty={
+          <EmptyState
+            description={t(
+              "noTicketsDesc",
+              "We're here to help whenever you need us."
+            )}
+            icon="uil:headphones"
+            title={t("noTickets", "No support tickets yet")}
+          />
+        }
         header={{
           title: t("ticketList", "Ticket List"),
           toolbar: (
@@ -191,7 +199,7 @@ export default function Ticket() {
                     t(`status.${item.status}`, "Unknown Status")}
                 </span>
               </CardTitle>
-              <CardDescription className="flex gap-2">
+              <div className="flex gap-2">
                 {item.status !== 4 ? (
                   <>
                     <Button
@@ -234,7 +242,7 @@ export default function Ticket() {
                     {t("check", "Check")}
                   </Button>
                 )}
-              </CardDescription>
+              </div>
             </CardHeader>
 
             <CardContent className="p-3 text-sm">
@@ -249,7 +257,7 @@ export default function Ticket() {
                   <span className="text-muted-foreground">
                     {t("description", "Description")}
                   </span>
-                  <time>{item.description}</time>
+                  <span>{item.description}</span>
                 </li>
                 <li className="font-semibold">
                   <span className="text-muted-foreground">
@@ -335,7 +343,7 @@ export default function Ticket() {
                   event.preventDefault();
                   if (message) {
                     await createUserTicketFollow({
-                      ticket_id: ticketId,
+                      ticket_id: ticketId!,
                       from: "User",
                       type: 1,
                       content: message,
@@ -392,7 +400,7 @@ export default function Ticket() {
                                 reader.readAsDataURL(blob!);
                                 reader.onloadend = async () => {
                                   await createUserTicketFollow({
-                                    ticket_id: ticketId,
+                                    ticket_id: ticketId!,
                                     from: "User",
                                     type: 2,
                                     content: reader.result as string,
@@ -412,7 +420,7 @@ export default function Ticket() {
                 </Button>
                 <Input
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder={t("inputPlaceholder", "Input Placeholder")}
+                  placeholder={t("inputPlaceholder", "Type a message...")}
                   value={message}
                 />
                 <Button disabled={!message} type="submit">

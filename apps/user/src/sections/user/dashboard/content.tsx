@@ -1,12 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@workspace/ui/components/accordion";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -15,8 +9,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@workspace/ui/components/alert-dialog";
+import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -24,7 +18,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
-import { Separator } from "@workspace/ui/components/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@workspace/ui/components/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@workspace/ui/components/dropdown-menu";
+import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@workspace/ui/components/tabs";
 import { Icon } from "@workspace/ui/composed/icon";
 import { cn } from "@workspace/ui/lib/utils";
@@ -40,15 +46,14 @@ import React, { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { CopyButton } from "@/components/copy-button";
 import { Display } from "@/components/display";
 import { useGlobalStore } from "@/stores/global";
 import { getPlatform } from "@/utils/common";
-import Subscribe from "../../subscribe";
 import Renewal from "../../subscribe/renewal";
 import ResetTraffic from "../../subscribe/reset-traffic";
-import Unsubscribe from "../../subscribe/unsubscribe";
 
-const platforms: (keyof API.DownloadLink)[] = [
+const PLATFORMS: (keyof API.DownloadLink)[] = [
   "windows",
   "mac",
   "linux",
@@ -57,11 +62,21 @@ const platforms: (keyof API.DownloadLink)[] = [
   "harmony",
 ];
 
+const PLATFORM_ICONS: Record<keyof API.DownloadLink, string> = {
+  windows: "mdi:microsoft-windows",
+  mac: "uil:apple",
+  linux: "uil:linux",
+  ios: "simple-icons:ios",
+  android: "uil:android",
+  harmony: "simple-icons:harmonyos",
+};
+
+// ---------------------------------------------------------------------------
+// Main export
+// ---------------------------------------------------------------------------
+
 export default function Content() {
   const { t } = useTranslation("dashboard");
-  const { getUserSubscribe, getAppSubLink } = useGlobalStore();
-
-  const [protocol, setProtocol] = useState("");
 
   const {
     data: userSubscribe = [],
@@ -74,7 +89,8 @@ export default function Content() {
       return data.data?.list || [];
     },
   });
-  const { data: applications } = useQuery({
+
+  const { data: applications = [] } = useQuery({
     queryKey: ["getClient"],
     queryFn: async () => {
       const { data } = await getClient();
@@ -82,503 +98,660 @@ export default function Content() {
     },
   });
 
-  const availablePlatforms = React.useMemo(() => {
-    if (!applications || applications.length === 0) return platforms;
-
-    const platformsSet = new Set<keyof API.DownloadLink>();
-
-    applications.forEach((app) => {
-      if (app.download_link) {
-        platforms.forEach((platform) => {
-          if (app.download_link?.[platform]) {
-            platformsSet.add(platform);
-          }
-        });
-      }
-    });
-
-    return platforms.filter((platform) => platformsSet.has(platform));
-  }, [applications]);
-
-  const [platform, setPlatform] = useState<keyof API.DownloadLink>(() => {
-    const detectedPlatform =
-      getPlatform() === "macos"
-        ? "mac"
-        : (getPlatform() as keyof API.DownloadLink);
-    return detectedPlatform;
-  });
-
-  React.useEffect(() => {
-    if (
-      availablePlatforms.length > 0 &&
-      !availablePlatforms.includes(platform)
-    ) {
-      const firstAvailablePlatform = availablePlatforms[0];
-      if (firstAvailablePlatform) {
-        setPlatform(firstAvailablePlatform);
-      }
-    }
-  }, [availablePlatforms, platform]);
-
-  const { data } = useQuery({
+  const { data: stat } = useQuery({
     queryKey: ["getStat"],
     queryFn: async () => {
-      const { data } = await getStat({
-        skipErrorHandler: true,
-      });
+      const { data } = await getStat({ skipErrorHandler: true });
       return data.data;
     },
     refetchOnWindowFocus: false,
   });
 
-  const statusWatermarks = {
-    2: t("finished", "Finished"),
-    3: t("expired", "Expired"),
-    4: t("deducted", "Deducted"),
-  };
+  const protocols: string[] = stat?.protocol ?? [];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-48 w-full rounded-xl" />
+        <Skeleton className="h-48 w-full rounded-xl" />
+      </div>
+    );
+  }
+
+  // status 4 = deducted → always hidden
+  const visible = userSubscribe.filter((s) => s.status !== 4);
+
+  if (visible.length === 0) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center gap-4 py-12">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+            <Icon
+              className="h-7 w-7 text-muted-foreground"
+              icon="uil:network-chart"
+            />
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-base">
+              {t("noActiveServices", "No active services")}
+            </p>
+            <p className="mt-1 text-muted-foreground text-sm">
+              {t("noActiveServicesDesc", "Subscribe to get started.")}
+            </p>
+          </div>
+          <Button asChild>
+            <Link to="/subscribe">
+              {t("purchaseSubscription", "Purchase Subscription")}
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="flex items-center gap-1.5 font-semibold">
+          <Icon className="size-5" icon="uil:servers" />
+          {t("mySubscriptions", "My Subscriptions")}
+        </h2>
+        <Button
+          className={isLoading ? "animate-pulse" : ""}
+          onClick={() => refetch()}
+          size="sm"
+          variant="outline"
+        >
+          <Icon icon="uil:sync" />
+        </Button>
+      </div>
+
+      {visible.map((item) => (
+        <ServiceCard
+          applications={applications}
+          item={item}
+          key={item.id}
+          onRefetch={refetch}
+          protocols={protocols}
+        />
+      ))}
+
+      <div className="flex justify-center">
+        <Button asChild size="sm" variant="outline">
+          <Link to="/subscribe">
+            <Icon className="mr-1.5 h-4 w-4" icon="uil:plus" />
+            {t("purchaseSubscription", "Purchase Subscription")}
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ServiceCard
+// ---------------------------------------------------------------------------
+
+interface ServiceCardProps {
+  item: API.UserSubscribe;
+  applications: API.SubscribeClient[];
+  protocols: string[];
+  onRefetch: () => void;
+}
+
+function ServiceCard({
+  item,
+  applications,
+  protocols,
+  onRefetch,
+}: ServiceCardProps) {
+  const { t } = useTranslation("dashboard");
+  const [subSheetOpen, setSubSheetOpen] = useState(false);
+
+  // status 3 with expire_time 0 means "permanent" — treat as active
+  const isActuallyExpired = item.status === 3 && item.expire_time !== 0;
+  const isFinished = item.status === 2;
+  const isActive =
+    item.status === 1 || (item.status === 3 && item.expire_time === 0);
+  const isPending = item.status === 0;
+
+  return (
+    <Card className={cn({ "opacity-60": isActuallyExpired || isFinished })}>
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <CardTitle className="truncate font-semibold text-base">
+              {item.subscribe.name}
+            </CardTitle>
+            <ExpiryLine expireTime={item.expire_time} />
+          </div>
+          <StatusBadge expireTime={item.expire_time} status={item.status} />
+        </div>
+      </CardHeader>
+
+      <CardContent className="grid gap-4 pt-0">
+        <TrafficSection
+          download={item.download}
+          traffic={item.traffic}
+          upload={item.upload}
+        />
+
+        {/* Primary + secondary actions */}
+        {!(isFinished || isActuallyExpired) && (
+          <div className="flex flex-wrap gap-2">
+            {isActive && (
+              <Button onClick={() => setSubSheetOpen(true)} size="sm">
+                <Icon className="mr-1.5 h-4 w-4" icon="uil:link" />
+                {t("connect", "Connect")}
+              </Button>
+            )}
+
+            {item.expire_time !== 0 && item.subscribe.sell && (
+              <Renewal id={item.id} subscribe={item.subscribe} />
+            )}
+
+            {!!item.subscribe.replacement && (
+              <ResetTraffic
+                id={item.id}
+                replacement={item.subscribe.replacement}
+              />
+            )}
+
+            <MoreMenu id={item.id} onRefetch={onRefetch} />
+          </div>
+        )}
+
+        {/* Expired — only show renew */}
+        {isActuallyExpired && item.expire_time !== 0 && item.subscribe.sell && (
+          <Renewal id={item.id} subscribe={item.subscribe} />
+        )}
+
+        {isPending && (
+          <p className="text-muted-foreground text-sm">
+            {t("pendingActivation", "Pending activation")}
+          </p>
+        )}
+      </CardContent>
+
+      <SubURLSheet
+        applications={applications}
+        item={item}
+        onOpenChange={setSubSheetOpen}
+        open={subSheetOpen}
+        protocols={protocols}
+      />
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// StatusBadge
+// ---------------------------------------------------------------------------
+
+function StatusBadge({
+  status,
+  expireTime,
+}: {
+  status: number;
+  expireTime: number;
+}) {
+  const { t } = useTranslation("dashboard");
+  const isActuallyExpired = status === 3 && expireTime !== 0;
+
+  if (status === 0) {
+    return (
+      <Badge className="shrink-0" variant="outline">
+        {t("pending", "Pending")}
+      </Badge>
+    );
+  }
+  if (status === 1 || (status === 3 && expireTime === 0)) {
+    return (
+      <Badge
+        className="shrink-0 border-green-600 text-green-600"
+        variant="outline"
+      >
+        {t("active", "Active")}
+      </Badge>
+    );
+  }
+  if (status === 2) {
+    return (
+      <Badge className="shrink-0" variant="secondary">
+        {t("finished", "Finished")}
+      </Badge>
+    );
+  }
+  if (isActuallyExpired) {
+    return (
+      <Badge className="shrink-0" variant="destructive">
+        {t("expired", "Expired")}
+      </Badge>
+    );
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// ExpiryLine
+// ---------------------------------------------------------------------------
+
+function ExpiryLine({ expireTime }: { expireTime: number }) {
+  const { t } = useTranslation("dashboard");
+
+  if (!expireTime || expireTime === 0) {
+    return (
+      <p className="mt-0.5 text-muted-foreground text-xs">
+        {t("noExpiry", "No expiry")}
+      </p>
+    );
+  }
+
+  const days = Number(differenceInDays(new Date(expireTime), new Date()));
+
+  if (days <= 0) {
+    return (
+      <p className="mt-0.5 text-destructive text-xs">
+        {t("expired", "Expired")}
+      </p>
+    );
+  }
+
+  if (days <= 7) {
+    return (
+      <p className="mt-0.5 text-amber-500 text-xs">
+        {t("expiringSoon", "Expiring soon")} — {Math.floor(days)}d
+      </p>
+    );
+  }
+
+  if (days <= 30) {
+    return (
+      <p className="mt-0.5 text-muted-foreground text-xs">
+        {t("expiresInDays", "Expires in")} {Math.floor(days)}d
+      </p>
+    );
+  }
+
+  return (
+    <p className="mt-0.5 text-muted-foreground text-xs">
+      {t("expireAt", "Expires")} {formatDate(expireTime, false)}
+    </p>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// TrafficSection
+// ---------------------------------------------------------------------------
+
+function TrafficSection({
+  upload,
+  download,
+  traffic,
+}: {
+  upload: number;
+  download: number;
+  traffic: number;
+}) {
+  const { t } = useTranslation("dashboard");
+  const used = upload + download;
+  const unlimited = !traffic;
+  const percent = unlimited
+    ? 0
+    : Math.min(100, Math.round((used / traffic) * 100));
+
+  const barColor =
+    percent >= 90
+      ? "bg-destructive"
+      : percent >= 70
+        ? "bg-amber-500"
+        : "bg-primary";
+
+  return (
+    <div className="grid gap-1.5">
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-muted-foreground text-xs uppercase tracking-wide">
+          {t("used", "Traffic")}
+        </span>
+        <span className="text-muted-foreground text-xs">
+          {unlimited ? (
+            t("noLimit", "Unlimited")
+          ) : (
+            <>
+              <Display type="traffic" unlimited={false} value={used} />
+              {" / "}
+              <Display type="traffic" unlimited={false} value={traffic} />
+              {" · "}
+              {percent}%
+            </>
+          )}
+        </span>
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-primary/20">
+        {!unlimited && (
+          <div
+            className={cn("h-full rounded-full transition-all", barColor)}
+            style={{ width: `${percent}%` }}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// MoreMenu — ··· dropdown for token reset
+// ---------------------------------------------------------------------------
+
+function MoreMenu({ id, onRefetch }: { id: number; onRefetch: () => void }) {
+  const { t } = useTranslation("dashboard");
+  const [open, setOpen] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
 
   return (
     <>
-      {userSubscribe.length ? (
-        <>
-          <div className="flex items-center justify-between">
-            <h2 className="flex items-center gap-1.5 font-semibold">
-              <Icon className="size-5" icon="uil:servers" />
-              {t("mySubscriptions", "My Subscriptions")}
-            </h2>
-            <div className="flex gap-2">
-              <Button
-                className={isLoading ? "animate-pulse" : ""}
-                onClick={() => {
-                  refetch();
-                }}
-                size="sm"
-                variant="outline"
-              >
-                <Icon icon="uil:sync" />
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/subscribe">
-                  {t("purchaseSubscription", "Purchase Subscription")}
-                </Link>
-              </Button>
-            </div>
-          </div>
-          <div className="flex flex-wrap justify-between gap-4">
-            {availablePlatforms.length > 0 && (
+      <DropdownMenu onOpenChange={setOpen} open={open}>
+        <DropdownMenuTrigger asChild>
+          <Button size="sm" variant="ghost">
+            <Icon className="h-4 w-4" icon="uil:ellipsis-h" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            className="text-destructive focus:text-destructive"
+            onSelect={() => {
+              setOpen(false);
+              setAlertOpen(true);
+            }}
+          >
+            <Icon className="mr-2 h-4 w-4" icon="uil:redo" />
+            {t("resetSubscription", "Reset Token")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <AlertDialog onOpenChange={setAlertOpen} open={alertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("prompt", "Confirm")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                "confirmResetSubscription",
+                "Are you sure you want to reset your subscription?"
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("cancel", "Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                await resetUserSubscribeToken({ user_subscribe_id: id });
+                await onRefetch();
+                toast.success(t("resetSuccess", "Reset Success"));
+                setAlertOpen(false);
+              }}
+            >
+              {t("confirm", "Confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SubURLSheet — subscription URLs in a bottom sheet
+// ---------------------------------------------------------------------------
+
+interface SubURLSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  item: API.UserSubscribe;
+  applications: API.SubscribeClient[];
+  protocols: string[];
+}
+
+function SubURLSheet({
+  open,
+  onOpenChange,
+  item,
+  applications,
+  protocols,
+}: SubURLSheetProps) {
+  const { t } = useTranslation("dashboard");
+  const { getUserSubscribe, getAppSubLink } = useGlobalStore();
+
+  const [platform, setPlatform] = useState<keyof API.DownloadLink>(() => {
+    const detected = getPlatform();
+    return (detected === "macos" ? "mac" : detected) as keyof API.DownloadLink;
+  });
+  const [protocol, setProtocol] = useState("");
+
+  const availablePlatforms = React.useMemo(() => {
+    if (!applications.length) return PLATFORMS;
+    const set = new Set<keyof API.DownloadLink>();
+    for (const app of applications) {
+      for (const p of PLATFORMS) {
+        if (app.download_link?.[p]) set.add(p);
+      }
+    }
+    const found = PLATFORMS.filter((p) => set.has(p));
+    return found.length > 0 ? found : PLATFORMS;
+  }, [applications]);
+
+  const urls = getUserSubscribe(item.short, item.token, protocol) ?? [];
+
+  return (
+    <Dialog onOpenChange={onOpenChange} open={open}>
+      <DialogContent className="flex max-h-[85dvh] flex-col gap-0 overflow-hidden p-0 sm:max-w-lg">
+        <DialogHeader className="shrink-0 border-b px-4 py-4">
+          <DialogTitle className="text-base">
+            {t("subscriptionUrl", "Subscription URL")} — {item.subscribe.name}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-4 py-4">
+          {/* Platform selector */}
+          {availablePlatforms.length > 0 && (
+            <div className="mb-4">
               <Tabs
-                className="w-full max-w-full md:w-auto"
-                onValueChange={(value) =>
-                  setPlatform(value as keyof API.DownloadLink)
-                }
+                onValueChange={(v) => setPlatform(v as keyof API.DownloadLink)}
                 value={platform}
               >
                 <TabsList className="flex *:flex-auto">
-                  {availablePlatforms.map((item) => (
-                    <TabsTrigger
-                      className="px-1 lg:px-3"
-                      key={item}
-                      value={item}
-                    >
-                      <Icon
-                        className="size-5"
-                        icon={`${
-                          {
-                            windows: "mdi:microsoft-windows",
-                            mac: "uil:apple",
-                            linux: "uil:linux",
-                            ios: "simple-icons:ios",
-                            android: "uil:android",
-                            harmony: "simple-icons:harmonyos",
-                          }[item]
-                        }`}
-                      />
+                  {availablePlatforms.map((p) => (
+                    <TabsTrigger key={p} value={p}>
+                      <Icon className="size-4" icon={PLATFORM_ICONS[p]} />
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
-            )}
-            {data?.protocol && data?.protocol.length > 1 && (
-              <Tabs
-                className="w-full max-w-full md:w-auto"
-                onValueChange={setProtocol}
-                value={protocol}
-              >
+            </div>
+          )}
+
+          {/* Protocol selector */}
+          {protocols.length > 1 && (
+            <div className="mb-4">
+              <Tabs onValueChange={setProtocol} value={protocol}>
                 <TabsList className="flex *:flex-auto">
-                  {["all", ...(data?.protocol || [])].map((item) => (
+                  {["all", ...protocols].map((p) => (
                     <TabsTrigger
-                      className="px-1 uppercase lg:px-3"
-                      key={item}
-                      value={item === "all" ? "" : item}
+                      className="uppercase"
+                      key={p}
+                      value={p === "all" ? "" : p}
                     >
-                      {item}
+                      {p}
                     </TabsTrigger>
                   ))}
                 </TabsList>
               </Tabs>
-            )}
+            </div>
+          )}
+
+          {/* URL blocks */}
+          <div className="grid gap-6">
+            {urls.map((url, index) => (
+              <SubscriptionURLBlock
+                applications={applications}
+                getAppSubLink={getAppSubLink}
+                index={index}
+                key={url}
+                platform={platform}
+                url={url}
+              />
+            ))}
           </div>
-          {userSubscribe.map((item) => {
-            // 如果过期时间为0，说明是永久订阅，不应该显示过期状态
-            const isActuallyExpired =
-              item.status === 3 && item.expire_time !== 0;
-            const shouldShowWatermark =
-              item.status === 2 || item.status === 4 || isActuallyExpired;
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// SubscriptionURLBlock — one URL row + app grid + QR
+// ---------------------------------------------------------------------------
+
+interface URLBlockProps {
+  url: string;
+  index: number;
+  platform: keyof API.DownloadLink;
+  applications: API.SubscribeClient[];
+  getAppSubLink: (url: string, schema?: string) => string;
+}
+
+function SubscriptionURLBlock({
+  url,
+  index,
+  platform,
+  applications,
+  getAppSubLink,
+}: URLBlockProps) {
+  const { t } = useTranslation("dashboard");
+
+  const compatibleApps = applications.filter(
+    (app) => !!(app.download_link?.[platform] && app.scheme)
+  );
+
+  return (
+    <div className="grid gap-3">
+      {/* Label + copy */}
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-sm">
+          {t("subscriptionUrl", "Subscription URL")} {index + 1}
+        </span>
+        <CopyButton
+          copiedLabel={t("copied", "Copied!")}
+          copyLabel={t("copy", "Copy")}
+          text={url}
+        />
+      </div>
+
+      {/* URL text */}
+      <div className="break-all rounded-lg bg-muted px-3 py-2 font-mono text-xs">
+        {url}
+      </div>
+
+      {/* App grid */}
+      {compatibleApps.length > 0 && (
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+          {compatibleApps.map((app) => {
+            const downloadUrl = app.download_link?.[platform];
+
+            const handleImport = (_: string, result: boolean) => {
+              if (!result) return;
+              const href = getAppSubLink(url, app.scheme);
+              const showManual = () =>
+                toast.success(
+                  <>
+                    <p>{t("copySuccess", "Copy Success")}</p>
+                    <br />
+                    <p>{t("manualImportMessage", "Please import manually")}</p>
+                  </>
+                );
+              if (isBrowser() && href) {
+                window.location.href = href;
+                const timer = setTimeout(() => {
+                  if (window.location.href !== href) showManual();
+                  clearTimeout(timer);
+                }, 1000);
+                return;
+              }
+              showManual();
+            };
 
             return (
-              <Card
-                className={cn("relative", {
-                  "relative opacity-80 grayscale": isActuallyExpired,
-                  "relative hidden opacity-60 blur-[0.3px] grayscale":
-                    item.status === 4,
-                })}
-                key={item.id}
+              <div
+                className="flex flex-col items-center gap-1.5 text-center"
+                key={app.name}
               >
-                {shouldShowWatermark && (
-                  <div
-                    className={cn(
-                      "pointer-events-none absolute top-0 left-0 z-10 h-full w-full overflow-hidden mix-blend-difference brightness-150 contrast-200 invert-[0.2]",
-                      {
-                        "text-destructive": item.status === 2,
-                        "text-white": isActuallyExpired || item.status === 4,
-                      }
-                    )}
-                  >
-                    <div className="absolute inset-0">
-                      {Array.from({ length: 16 }).map((_, i) => {
-                        const row = Math.floor(i / 4);
-                        const col = i % 4;
-                        const top = 10 + row * 25 + (col % 2 === 0 ? 5 : -5);
-                        const left = 5 + col * 30 + (row % 2 === 0 ? 0 : 10);
-
-                        return (
-                          <span
-                            className="absolute rotate-[-30deg] whitespace-nowrap font-black text-lg opacity-40 shadow-[0px_0px_1px_rgba(255,255,255,0.5)]"
-                            key={i}
-                            style={{
-                              top: `${top}%`,
-                              left: `${left}%`,
-                            }}
-                          >
-                            {
-                              statusWatermarks[
-                                item.status as keyof typeof statusWatermarks
-                              ]
-                            }
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
+                {app.icon && (
+                  <img
+                    alt={app.name}
+                    className="h-10 w-10 p-0.5"
+                    height={40}
+                    src={app.icon}
+                    width={40}
+                  />
                 )}
-                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 space-y-0">
-                  <CardTitle className="font-medium">
-                    {item.subscribe.name}
-                    <p className="mt-1 text-foreground/50 text-sm">
-                      {t("expireAt", "Expires At")}:{" "}
-                      {item.expire_time
-                        ? formatDate(item.expire_time)
-                        : t("noLimit", "No Limit")}
-                    </p>
-                  </CardTitle>
-                  {item.status !== 4 && (
-                    <div className="flex flex-wrap gap-2">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="destructive">
-                            {t("resetSubscription", "Reset Subscription")}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              {t("prompt", "Prompt")}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t(
-                                "confirmResetSubscription",
-                                "Are you sure you want to reset your subscription?"
-                              )}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>
-                              {t("cancel", "Cancel")}
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={async () => {
-                                await resetUserSubscribeToken({
-                                  user_subscribe_id: item.id,
-                                });
-                                await refetch();
-                                toast.success(
-                                  t("resetSuccess", "Reset Success")
-                                );
-                              }}
-                            >
-                              {t("confirm", "Confirm")}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                      <ResetTraffic
-                        id={item.id}
-                        replacement={item.subscribe.replacement}
-                      />
-                      {item.expire_time !== 0 && item.subscribe.sell && (
-                        <Renewal id={item.id} subscribe={item.subscribe} />
+                <span className="text-[10px] text-muted-foreground leading-tight">
+                  {app.name}
+                </span>
+                <div className="flex w-full gap-1">
+                  {downloadUrl && (
+                    <Button
+                      asChild
+                      className={cn(
+                        "h-7 flex-1 px-1 text-xs",
+                        app.scheme && "rounded-r-none"
                       )}
-                      <Unsubscribe
-                        allowDeduction={item.subscribe.allow_deduction}
-                        id={item.id}
-                        onSuccess={refetch}
-                      />
-                    </div>
+                      size="sm"
+                      variant="secondary"
+                    >
+                      <a
+                        href={downloadUrl}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {t("download", "Download")}
+                      </a>
+                    </Button>
                   )}
-                </CardHeader>
-                <CardContent>
-                  <ul className="grid grid-cols-2 gap-3 *:flex *:flex-col *:justify-between lg:grid-cols-4">
-                    <li>
-                      <span className="text-muted-foreground">
-                        {t("used", "Used")}
-                      </span>
-                      <span className="font-bold text-2xl">
-                        <Display
-                          type="traffic"
-                          unlimited={!item.traffic}
-                          value={item.upload + item.download}
-                        />
-                      </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">
-                        {t("totalTraffic", "Total Traffic")}
-                      </span>
-                      <span className="font-bold text-2xl">
-                        <Display
-                          type="traffic"
-                          unlimited={!item.traffic}
-                          value={item.traffic}
-                        />
-                      </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">
-                        {t("nextResetDays", "Next Reset Days")}
-                      </span>
-                      <span className="font-semibold text-2xl">
-                        {item.reset_time
-                          ? differenceInDays(
-                              new Date(item.reset_time),
-                              new Date()
-                            )
-                          : t("noReset", "No Reset")}
-                      </span>
-                    </li>
-                    <li>
-                      <span className="text-muted-foreground">
-                        {t("expirationDays", "Expiration Days")}
-                      </span>
-                      <span className="font-semibold text-2xl">
-                        {}
-                        {item.expire_time
-                          ? differenceInDays(
-                              new Date(item.expire_time),
-                              new Date()
-                            ) || t("unknown", "Unknown")
-                          : t("noLimit", "No Limit")}
-                      </span>
-                    </li>
-                  </ul>
-                  <Separator className="mt-4" />
-                  <Accordion
-                    className="w-full"
-                    collapsible
-                    defaultValue="0"
-                    type="single"
-                  >
-                    {getUserSubscribe(item.short, item.token, protocol)?.map(
-                      (url, index) => (
-                        <AccordionItem key={url} value={String(index)}>
-                          <AccordionTrigger className="hover:no-underline">
-                            <div className="flex w-full flex-row items-center justify-between">
-                              <CardTitle className="font-medium text-sm">
-                                {t("subscriptionUrl", "Subscription URL")}{" "}
-                                {index + 1}
-                              </CardTitle>
-
-                              <CopyToClipboard
-                                onCopy={(_, result) => {
-                                  if (result) {
-                                    toast.success(
-                                      t("copySuccess", "Copy Success")
-                                    );
-                                  }
-                                }}
-                                text={url}
-                              >
-                                <span
-                                  className="mr-4 flex cursor-pointer rounded p-2 text-primary text-sm hover:bg-accent"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
-                                  <Icon
-                                    className="mr-2 size-5"
-                                    icon="uil:copy"
-                                  />
-                                  {t("copy", "Copy")}
-                                </span>
-                              </CopyToClipboard>
-                            </div>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-                              {applications
-                                ?.filter(
-                                  (application) =>
-                                    !!(
-                                      application.download_link?.[platform] &&
-                                      application.scheme
-                                    )
-                                )
-                                .map((application) => {
-                                  const downloadUrl =
-                                    application.download_link?.[platform];
-
-                                  const handleCopy = (
-                                    _: string,
-                                    result: boolean
-                                  ) => {
-                                    if (result) {
-                                      const href = getAppSubLink(
-                                        url,
-                                        application.scheme
-                                      );
-                                      const showSuccessMessage = () => {
-                                        toast.success(
-                                          <>
-                                            <p>
-                                              {t("copySuccess", "Copy Success")}
-                                            </p>
-                                            <br />
-                                            <p>
-                                              {t(
-                                                "manualImportMessage",
-                                                "Please import manually"
-                                              )}
-                                            </p>
-                                          </>
-                                        );
-                                      };
-
-                                      if (isBrowser() && href) {
-                                        window.location.href = href;
-                                        const checkRedirect = setTimeout(() => {
-                                          if (window.location.href !== href) {
-                                            showSuccessMessage();
-                                          }
-                                          clearTimeout(checkRedirect);
-                                        }, 1000);
-                                        return;
-                                      }
-
-                                      showSuccessMessage();
-                                    }
-                                  };
-
-                                  return (
-                                    <div
-                                      className="flex size-full flex-col items-center justify-between gap-2 text-muted-foreground text-xs"
-                                      key={application.name}
-                                    >
-                                      <span>{application.name}</span>
-
-                                      {application.icon && (
-                                        <img
-                                          alt={application.name}
-                                          className="p-1"
-                                          height={64}
-                                          src={application.icon}
-                                          width={64}
-                                        />
-                                      )}
-                                      <div className="flex">
-                                        {downloadUrl && (
-                                          <Button
-                                            asChild
-                                            className={
-                                              application.scheme
-                                                ? "rounded-r-none px-1.5"
-                                                : "px-1.5"
-                                            }
-                                            size="sm"
-                                            variant="secondary"
-                                          >
-                                            <a
-                                              href={downloadUrl}
-                                              rel="noopener noreferrer"
-                                              target="_blank"
-                                            >
-                                              {t("download", "Download")}
-                                            </a>
-                                          </Button>
-                                        )}
-
-                                        {application.scheme && (
-                                          <CopyToClipboard
-                                            onCopy={handleCopy}
-                                            text={getAppSubLink(
-                                              url,
-                                              application.scheme
-                                            )}
-                                          >
-                                            <Button
-                                              className={
-                                                downloadUrl
-                                                  ? "rounded-l-none p-2"
-                                                  : "p-2"
-                                              }
-                                              size="sm"
-                                            >
-                                              {t("import", "Import")}
-                                            </Button>
-                                          </CopyToClipboard>
-                                        )}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              <div className="hidden size-full flex-col items-center justify-between gap-2 text-muted-foreground text-sm lg:flex">
-                                <span>{t("qrCode", "QR Code")}</span>
-                                <QRCodeCanvas
-                                  bgColor="transparent"
-                                  fgColor="rgb(59, 130, 246)"
-                                  size={80}
-                                  value={url}
-                                />
-                                <span className="text-center">
-                                  {t("scanToSubscribe", "Scan to Subscribe")}
-                                </span>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )
-                    )}
-                  </Accordion>
-                </CardContent>
-              </Card>
+                  {app.scheme && (
+                    <CopyToClipboard
+                      onCopy={handleImport}
+                      text={getAppSubLink(url, app.scheme)}
+                    >
+                      <Button
+                        className={cn(
+                          "h-7 flex-1 px-1 text-xs",
+                          downloadUrl && "rounded-l-none"
+                        )}
+                        size="sm"
+                      >
+                        {t("import", "Import")}
+                      </Button>
+                    </CopyToClipboard>
+                  )}
+                </div>
+              </div>
             );
           })}
-        </>
-      ) : (
-        <>
-          <h2 className="flex items-center gap-1.5 font-semibold">
-            <Icon className="size-5" icon="uil:shop" />
-            {t("purchaseSubscription", "Purchase Subscription")}
-          </h2>
-          <Subscribe />
-        </>
+        </div>
       )}
-    </>
+
+      {/* QR code */}
+      <div className="flex flex-col items-center gap-2 py-2">
+        <QRCodeCanvas
+          bgColor="transparent"
+          fgColor="rgb(59, 130, 246)"
+          size={120}
+          value={url}
+        />
+        <span className="text-muted-foreground text-xs">
+          {t("scanToSubscribe", "Scan to Subscribe")}
+        </span>
+      </div>
+    </div>
   );
 }

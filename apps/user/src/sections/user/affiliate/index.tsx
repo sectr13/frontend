@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@workspace/ui/components/button";
 import {
   Card,
   CardContent,
@@ -15,11 +14,11 @@ import {
   queryUserAffiliateList,
 } from "@workspace/ui/services/user/user";
 import { formatDate } from "@workspace/ui/utils/formatting";
-import { Copy } from "lucide-react";
-import { CopyToClipboard } from "react-copy-to-clipboard";
+import { isBrowser } from "@workspace/ui/utils/index";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { CopyButton } from "@/components/copy-button";
 import { Display } from "@/components/display";
+import { EmptyState } from "@/components/empty-state";
 import { useGlobalStore } from "@/stores/global";
 
 export default function Affiliate() {
@@ -32,6 +31,8 @@ export default function Affiliate() {
       return response.data.data;
     },
   });
+
+  const inviteLink = `${isBrowser() ? location?.origin : ""}/#/auth?invite=${user?.refer_code}`;
 
   return (
     <div className="flex flex-col gap-4">
@@ -66,23 +67,26 @@ export default function Affiliate() {
             <code className="rounded bg-muted px-2 py-1 font-bold text-2xl">
               {user?.refer_code}
             </code>
-            <CopyToClipboard
-              onCopy={(_, result) => {
-                if (result) {
-                  toast.success(t("copySuccess", "Copy Success"));
-                }
-              }}
-              text={`${location?.origin}/#/auth?invite=${user?.refer_code}`}
-            >
-              <Button className="gap-2" size="sm" variant="secondary">
-                <Copy className="h-4 w-4" />
-                {t("copyInviteLink", "Copy Invite Link")}
-              </Button>
-            </CopyToClipboard>
+            <CopyButton
+              copiedLabel={t("copySuccess", "Copied!")}
+              copyLabel={t("copyInviteLink", "Copy Invite Link")}
+              text={inviteLink}
+              variant="secondary"
+            />
           </div>
         </CardContent>
       </Card>
       <ProList<API.UserAffiliate, Record<string, unknown>>
+        empty={
+          <EmptyState
+            description={t(
+              "noReferralsDesc",
+              "Share your invite link to earn commission."
+            )}
+            icon="uil:users-alt"
+            title={t("noReferrals", "No referrals yet")}
+          />
+        }
         header={{
           title: t("inviteRecords", "Invite Records"),
         }}

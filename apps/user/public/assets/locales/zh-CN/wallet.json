@@ -1,5 +1,7 @@
 {
   "amount": "Дүн",
+  "noTransactions": "Гүйлгээ байхгүй",
+  "noTransactionsDesc": "Гүйлгээний түүх энд харагдана.",
   "assetOverview": "Хөрөнгийн тойм",
   "balance": "Баланс",
   "commission": "Шимтгэл",

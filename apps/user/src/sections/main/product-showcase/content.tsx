@@ -35,6 +35,7 @@ export function Content({ subscriptionData }: ProductShowcaseProps) {
 
   return (
     <motion.section
+      id="plans"
       initial={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}

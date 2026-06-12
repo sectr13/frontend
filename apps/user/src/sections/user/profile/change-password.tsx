@@ -13,6 +13,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@workspace/ui/components/form";
 import { Input } from "@workspace/ui/components/input";
@@ -66,6 +67,9 @@ export default function ChangePassword() {
               name="password"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>
+                    {t("accountSettings.newPassword", "New Password")}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t(
@@ -85,6 +89,12 @@ export default function ChangePassword() {
               name="repeat_password"
               render={({ field }) => (
                 <FormItem>
+                  <FormLabel>
+                    {t(
+                      "accountSettings.repeatNewPassword",
+                      "Repeat New Password"
+                    )}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={t(

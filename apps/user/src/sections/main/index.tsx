@@ -31,7 +31,7 @@ export default function Main() {
   if (!showLanding) return null;
 
   return (
-    <main className="container space-y-16">
+    <main className="container space-y-24">
       <Hero />
       <Stats />
       <ProductShowcase />

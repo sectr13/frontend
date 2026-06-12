@@ -1,7 +1,7 @@
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { Link } from "@tanstack/react-router";
-import { HoverBorderGradient } from "@workspace/ui/components/hover-border-gradient";
-import { TextGenerateEffect } from "@workspace/ui/components/text-generate-effect";
+import { buttonVariants } from "@workspace/ui/components/button";
+import { Icon } from "@workspace/ui/composed/icon";
+import { cn } from "@workspace/ui/lib/utils";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useGlobalStore } from "@/stores/global";
@@ -12,52 +12,43 @@ export function Hero() {
   const { site } = common;
 
   return (
-    <motion.div
+    <motion.section
       animate={{ opacity: 1, y: 0 }}
-      className="grid gap-8 pt-16 sm:grid-cols-2"
-      initial={{ opacity: 0, y: -50 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      viewport={{ once: true, amount: 0.2 }}
+      className="flex flex-col items-center gap-8 pt-20 pb-4 text-center"
+      initial={{ opacity: 0, y: 16 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
     >
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col items-start justify-center"
-        initial={{ opacity: 0, y: 50 }}
-        transition={{ type: "spring", stiffness: 80, damping: 15, delay: 0.3 }}
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        <h1 className="my-6 font-bold text-4xl lg:text-6xl">
-          {t("welcome", "Welcome to")} {site.site_name}
-        </h1>
-        {site.site_desc && (
-          <TextGenerateEffect
-            className="mb-8 max-w-xl *:text-muted-foreground"
-            words={site.site_desc}
-          />
-        )}
-        <Link to={user ? "/dashboard" : "/auth"}>
-          <HoverBorderGradient
-            as="button"
-            className="m-0.5 flex items-center space-x-2 text-white"
-            containerClassName="rounded-full"
-          >
-            {t("started", "Get Started")}
-          </HoverBorderGradient>
+      <div className="inline-flex items-center gap-1.5 rounded-full border bg-muted/60 px-3 py-1 font-medium text-muted-foreground text-xs">
+        <Icon className="size-3 text-primary" icon="uil:signal" />
+        {site.site_name}
+      </div>
+
+      <h1 className="max-w-3xl font-bold text-4xl leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+        {t("heroTitle", "Private network access, made simple")}
+      </h1>
+
+      <p className="max-w-xl text-lg text-muted-foreground">
+        {site.site_desc ||
+          t(
+            "heroSubtitle",
+            "Connect your devices to any network, anywhere. Reliable, fast, and easy to set up."
+          )}
+      </p>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link
+          className={buttonVariants({ size: "lg" })}
+          to={user ? "/dashboard" : "/auth"}
+        >
+          {t("started", "Get Started")}
         </Link>
-      </motion.div>
-      <motion.div
-        animate={{ opacity: 1, y: 0 }}
-        className="flex w-full"
-        initial={{ opacity: 0, y: 50 }}
-        transition={{ type: "spring", stiffness: 80, damping: 15, delay: 0.5 }}
-        viewport={{ once: true, amount: 0.3 }}
-      >
-        <DotLottieReact
-          autoplay
-          loop
-          src="./assets/lotties/network-security.json"
-        />
-      </motion.div>
-    </motion.div>
+        <a
+          className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
+          href="#plans"
+        >
+          {t("viewPlans", "View Plans")}
+        </a>
+      </div>
+    </motion.section>
   );
 }

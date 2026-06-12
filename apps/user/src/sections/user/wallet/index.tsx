@@ -10,6 +10,7 @@ import { formatDate } from "@workspace/ui/utils/formatting";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Display } from "@/components/display";
+import { EmptyState } from "@/components/empty-state";
 import Recharge from "@/sections/subscribe/recharge";
 import { useGlobalStore } from "@/stores/global";
 
@@ -94,6 +95,16 @@ export default function Wallet() {
       </Card>
       <ProList<API.BalanceLog, Record<string, unknown>>
         action={ref}
+        empty={
+          <EmptyState
+            description={t(
+              "noTransactionsDesc",
+              "Your transaction history will appear here."
+            )}
+            icon="uil:bill"
+            title={t("noTransactions", "No transactions yet")}
+          />
+        }
         renderItem={(item) => (
           <Card className="overflow-hidden">
             <CardContent className="text-sm">

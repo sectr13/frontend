@@ -1,6 +1,11 @@
 {
   "balanceRecharge": "Balance Recharge",
   "cancel": "Cancel",
+  "confirm": "Confirm",
+  "confirmCancel": "Confirm Cancel",
+  "cancelWarning": "Are you sure you want to cancel this order?",
+  "noOrders": "No orders yet",
+  "noOrdersDesc": "Orders will appear here after you make a purchase.",
   "createdAt": "Created At",
   "detail": "Detail",
   "goToPayment": "Go to Payment",

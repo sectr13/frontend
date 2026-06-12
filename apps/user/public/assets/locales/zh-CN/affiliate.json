@@ -1,5 +1,7 @@
 {
   "commissionInfo": "Шимтгэлийн мэдээлэл",
+  "noReferrals": "Урилт байхгүй",
+  "noReferralsDesc": "Шимтгэл олохын тулд урилгын холбоосоо хуваалцана уу.",
   "commissionRate": "Шимтгэлийн хувь",
   "copyInviteLink": "Урилгын холбоосыг хуулах",
   "copySuccess": "Амжилттай хуулсан",

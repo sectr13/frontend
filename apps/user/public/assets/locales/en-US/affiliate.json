@@ -1,5 +1,7 @@
 {
   "commissionInfo": "Commission Info",
+  "noReferrals": "No referrals yet",
+  "noReferralsDesc": "Share your invite link to earn commission.",
   "commissionRate": "Commission Rate",
   "copyInviteLink": "Copy Invite Link",
   "copySuccess": "Copy Success",

@@ -23,67 +23,62 @@ export function useNavs() {
       icon: "uil:dashboard",
     },
     {
-      title: t("menu.personal", "Personal"),
-      items: [
-        {
-          title: t("menu.profile", "User Detail"),
-          url: "/profile",
-          icon: "uil:user",
-        },
-      ],
-    },
-    {
-      title: t("menu.server", "Server Management"),
+      title: t("menu.services", "My Services"),
       items: [
         {
           url: "/subscribe",
-          icon: "uil:shop",
-          title: t("menu.subscribe", "Subscribe"),
+          icon: "uil:network-chart",
+          title: t("menu.network", "Network"),
         },
         {
           url: "/amraanet",
           icon: "uil:wifi",
-          title: t("menu.amraanet", "AmraaNet Service"),
+          title: t("menu.amraanet", "AmraaNet"),
         },
       ],
     },
     {
-      title: t("menu.finance", "Commerce"),
+      title: t("menu.account", "Account"),
       items: [
         {
+          title: t("menu.profile", "Profile"),
+          url: "/profile",
+          icon: "uil:user-circle",
+        },
+        {
           url: "/order",
-          icon: "uil:notes",
-          title: t("menu.order", "Order Management"),
+          icon: "uil:receipt",
+          title: t("menu.order", "Orders"),
         },
         {
           url: "/wallet",
           icon: "uil:wallet",
-          title: t("menu.wallet", "Balance"),
+          title: t("menu.wallet", "Wallet"),
         },
         {
           url: "/affiliate",
           icon: "uil:users-alt",
-          title: t("menu.affiliate", "Commission"),
+          title: t("menu.affiliate", "Referral"),
         },
       ],
     },
     {
-      title: t("menu.help", "Users & Support"),
+      title: t("menu.help", "Help"),
       items: [
         {
           url: "/document",
-          icon: "uil:book-alt",
-          title: t("menu.document", "Document Management"),
+          icon: "uil:book-open",
+          title: t("menu.document", "Guides"),
         },
         {
           url: "/announcement",
-          icon: "uil:megaphone",
-          title: t("menu.announcement", "Announcement Management"),
+          icon: "uil:bell",
+          title: t("menu.announcement", "Updates"),
         },
         {
           url: "/ticket",
-          icon: "uil:message",
-          title: t("menu.ticket", "Ticket Management"),
+          icon: "uil:headphones",
+          title: t("menu.ticket", "Support"),
         },
       ],
     },
@@ -115,23 +110,23 @@ export function useNavItems() {
   return [
     {
       url: "/profile",
-      icon: "uil:user",
-      title: t("menu.profile", "User Detail"),
+      icon: "uil:user-circle",
+      title: t("menu.profile", "Profile"),
     },
     {
       url: "/subscribe",
-      icon: "uil:shop",
-      title: t("menu.subscribe", "Subscribe"),
+      icon: "uil:network-chart",
+      title: t("menu.network", "Network"),
     },
     {
       url: "/order",
-      icon: "uil:notes",
-      title: t("menu.order", "Order Management"),
+      icon: "uil:receipt",
+      title: t("menu.order", "Orders"),
     },
     {
       url: "/wallet",
       icon: "uil:wallet",
-      title: t("menu.wallet", "Balance"),
+      title: t("menu.wallet", "Wallet"),
     },
   ];
 }

@@ -10,7 +10,9 @@
   "createTicket": "Create Ticket",
   "createTicketDescription": "Create Ticket Description",
   "description": "Description",
-  "inputPlaceholder": "Input Placeholder",
+  "inputPlaceholder": "Type a message...",
+  "noTickets": "No support tickets yet",
+  "noTicketsDesc": "We're here to help whenever you need us.",
   "reply": "Reply",
   "status": {
     "0": "Status",

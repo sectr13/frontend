@@ -1,6 +1,5 @@
 "use client";
 
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { Link } from "@tanstack/react-router";
 import {
   Tabs,
@@ -35,76 +34,65 @@ export default function Main() {
   ].filter((method) => method.enabled);
 
   return (
-    <main className="flex h-full min-h-screen items-center bg-muted/50">
-      <div className="flex size-full flex-auto flex-col lg:flex-row">
-        <div className="flex bg-center bg-cover lg:w-1/2 lg:flex-auto">
-          <div className="flex w-full flex-col items-center justify-center px-5 py-7 md:px-15 lg:py-15">
-            <Link className="mb-0 flex flex-col items-center lg:mb-12" to="/">
-              {site.site_logo && (
-                <img alt="logo" height={48} src={site.site_logo} width={48} />
+    <main className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4 py-12">
+      <div className="w-full max-w-md">
+        <Link className="mb-8 flex flex-col items-center gap-2" to="/">
+          {site.site_logo && (
+            <img alt="logo" height={40} src={site.site_logo} width={40} />
+          )}
+          <span className="font-bold text-xl">{site.site_name}</span>
+        </Link>
+
+        <div className="rounded-2xl border bg-background px-8 py-8 shadow-sm">
+          <div className="mb-6">
+            <h1 className="font-bold text-xl">
+              {t("verifyAccount", "Welcome back")}
+            </h1>
+            <p className="mt-1 text-muted-foreground text-sm">
+              {t(
+                "verifyAccountDesc",
+                "Sign in or create an account to continue"
               )}
-              <span className="font-semibold text-2xl">{site.site_name}</span>
-            </Link>
-            <DotLottieReact
-              autoplay
-              className="mx-auto hidden w-[275px] lg:block xl:w-[500px]"
-              loop
-              src="./assets/lotties/login.json"
-            />
-            <p className="hidden w-[275px] text-center md:w-1/2 lg:block xl:w-[500px]">
-              {site.site_desc}
             </p>
           </div>
+
+          {AUTH_METHODS.length === 1
+            ? AUTH_METHODS[0]?.children
+            : AUTH_METHODS[0] && (
+                <Tabs defaultValue={AUTH_METHODS[0].key}>
+                  <TabsList className="mb-6 flex w-full *:flex-1">
+                    {AUTH_METHODS.map((item) => (
+                      <TabsTrigger key={item.key} value={item.key}>
+                        {t(`methods.${item.key}`)}
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
+                  {AUTH_METHODS.map((item) => (
+                    <TabsContent key={item.key} value={item.key}>
+                      {item.children}
+                    </TabsContent>
+                  ))}
+                </Tabs>
+              )}
+
+          <div className="mt-6">
+            <OAuthMethods />
+          </div>
         </div>
-        <div className="flex flex-initial justify-center p-12 lg:flex-auto lg:justify-end">
-          <div className="flex w-full flex-col items-center rounded-2xl md:w-[600px] md:p-10 lg:flex-auto lg:bg-background lg:shadow">
-            <div className="flex w-full flex-col items-stretch justify-center md:w-[400px] lg:h-full">
-              <div className="flex flex-col justify-center lg:flex-auto">
-                <h1 className="mb-3 text-center font-bold text-2xl">
-                  {t("verifyAccount", "Verify Your Account")}
-                </h1>
-                <div className="mb-6 text-center font-medium text-muted-foreground">
-                  {t(
-                    "verifyAccountDesc",
-                    "Please login or register to continue"
-                  )}
-                </div>
-                {AUTH_METHODS.length === 1
-                  ? AUTH_METHODS[0]?.children
-                  : AUTH_METHODS[0] && (
-                      <Tabs defaultValue={AUTH_METHODS[0].key}>
-                        <TabsList className="mb-6 flex w-full *:flex-1">
-                          {AUTH_METHODS.map((item) => (
-                            <TabsTrigger key={item.key} value={item.key}>
-                              {t(`methods.${item.key}`)}
-                            </TabsTrigger>
-                          ))}
-                        </TabsList>
-                        {AUTH_METHODS.map((item) => (
-                          <TabsContent key={item.key} value={item.key}>
-                            {item.children}
-                          </TabsContent>
-                        ))}
-                      </Tabs>
-                    )}
-              </div>
-              <div className="py-8">
-                <OAuthMethods />
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-5">
-                  <LanguageSwitch />
-                  <ThemeSwitch />
-                </div>
-                <div className="flex gap-2 font-semibold text-primary text-sm">
-                  <Link to="/tos">{t("tos", "Terms of Service")}</Link>
-                  <span className="text-foreground/30">|</span>
-                  <Link to="/privacy-policy">
-                    {t("privacyPolicy", "Privacy Policy")}
-                  </Link>
-                </div>
-              </div>
-            </div>
+
+        <div className="mt-6 flex items-center justify-between px-1">
+          <div className="flex items-center gap-4">
+            <LanguageSwitch />
+            <ThemeSwitch />
+          </div>
+          <div className="flex gap-3 text-muted-foreground text-xs">
+            <Link className="hover:text-foreground" to="/tos">
+              {t("tos", "Terms of Service")}
+            </Link>
+            <span>·</span>
+            <Link className="hover:text-foreground" to="/privacy-policy">
+              {t("privacyPolicy", "Privacy Policy")}
+            </Link>
           </div>
         </div>
       </div>

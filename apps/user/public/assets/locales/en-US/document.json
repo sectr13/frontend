@@ -1,6 +1,8 @@
 {
   "all": "All",
   "document": "Document",
+  "guidesBeingPrepared": "Guides are being prepared.",
+  "guidesDesc": "Check back soon for setup guides and tutorials.",
   "read": "Read",
   "tutorial": "Tutorial"
 }

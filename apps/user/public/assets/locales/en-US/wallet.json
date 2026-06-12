@@ -1,5 +1,7 @@
 {
   "amount": "Amount",
+  "noTransactions": "No transactions yet",
+  "noTransactionsDesc": "Your transaction history will appear here.",
   "assetOverview": "Asset Overview",
   "balance": "Balance",
   "commission": "Commission",

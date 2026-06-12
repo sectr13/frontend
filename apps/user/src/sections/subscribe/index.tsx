@@ -9,7 +9,7 @@ import {
   CardHeader,
 } from "@workspace/ui/components/card";
 import { Separator } from "@workspace/ui/components/separator";
-import Empty from "@workspace/ui/composed/empty";
+import { Skeleton } from "@workspace/ui/components/skeleton";
 import { Icon } from "@workspace/ui/composed/icon";
 import { cn } from "@workspace/ui/lib/utils";
 import { querySubscribeList } from "@workspace/ui/services/user/subscribe";
@@ -17,6 +17,7 @@ import { queryUserSubscribe } from "@workspace/ui/services/user/user";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Display } from "@/components/display";
+import { EmptyState } from "@/components/empty-state";
 import { SubscribeDetail } from "./detail";
 import Purchase from "./purchase";
 
@@ -33,10 +34,9 @@ export default function Subscribe() {
   const locale = i18n.language;
   const [subscribe, setSubscribe] = useState<API.Subscribe>();
 
-  const { data: subscribeList } = useQuery({
+  const { data: subscribeList, isLoading: subscribeLoading } = useQuery({
     queryKey: ["querySubscribeList", locale],
     queryFn: async () => {
-      console.log("Fetching subscription list...");
       const { data } = await querySubscribeList({ language: locale });
       return data.data?.list || [];
     },
@@ -63,128 +63,154 @@ export default function Subscribe() {
   return (
     <>
       <div className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-          {filteredData?.map((item) => (
-            <Card className="relative flex flex-col" key={item.id}>
-              <CardHeader className="font-medium text-xl">
-                {item.name}
-              </CardHeader>
-              <CardContent className="*:!text-sm flex flex-grow flex-col gap-3">
-                {/* <div className='font-semibold'>{t('productDescription')}</div> */}
-                <ul className="flex flex-grow flex-col gap-3">
-                  {(() => {
-                    let parsedDescription: {
-                      description: string;
-                      features: Array<{
-                        icon: string;
-                        label: string;
-                        type: "default" | "success" | "destructive";
-                      }>;
-                    };
-                    try {
-                      parsedDescription = JSON.parse(item.description);
-                    } catch {
-                      parsedDescription = { description: "", features: [] };
-                    }
+        {subscribeLoading ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <Card className="flex flex-col" key={i}>
+                <CardHeader>
+                  <Skeleton className="h-6 w-32" />
+                </CardHeader>
+                <CardContent className="flex flex-grow flex-col gap-3">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </CardContent>
+                <CardFooter>
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : filteredData && filteredData.length > 0 ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+            {filteredData.map((item) => (
+              <Card className="relative flex flex-col" key={item.id}>
+                <CardHeader className="font-medium text-xl">
+                  {item.name}
+                </CardHeader>
+                <CardContent className="*:!text-sm flex flex-grow flex-col gap-3">
+                  <ul className="flex flex-grow flex-col gap-3">
+                    {(() => {
+                      let parsedDescription: {
+                        description: string;
+                        features: Array<{
+                          icon: string;
+                          label: string;
+                          type: "default" | "success" | "destructive";
+                        }>;
+                      };
+                      try {
+                        parsedDescription = JSON.parse(item.description);
+                      } catch {
+                        parsedDescription = { description: "", features: [] };
+                      }
 
-                    const { description, features } = parsedDescription;
-                    return (
-                      <>
-                        {description && (
-                          <li className="text-muted-foreground">
-                            {description}
-                          </li>
-                        )}
-                        {features?.map(
-                          (
-                            feature: {
-                              icon: string;
-                              label: string;
-                              type: "default" | "success" | "destructive";
-                            },
-                            index: number
-                          ) => (
-                            <li
-                              className={cn("flex items-center gap-1", {
-                                "text-muted-foreground line-through":
-                                  feature.type === "destructive",
-                              })}
-                              key={index}
-                            >
-                              {feature.icon && (
-                                <Icon
-                                  className={cn("size-5 text-primary", {
-                                    "text-green-500":
-                                      feature.type === "success",
-                                    "text-destructive":
-                                      feature.type === "destructive",
-                                  })}
-                                  icon={feature.icon}
-                                />
-                              )}
-                              {feature.label}
+                      const { description, features } = parsedDescription;
+                      return (
+                        <>
+                          {description && (
+                            <li className="text-muted-foreground">
+                              {description}
                             </li>
-                          )
-                        )}
-                      </>
+                          )}
+                          {features?.map(
+                            (
+                              feature: {
+                                icon: string;
+                                label: string;
+                                type: "default" | "success" | "destructive";
+                              },
+                              index: number
+                            ) => (
+                              <li
+                                className={cn("flex items-center gap-1", {
+                                  "text-muted-foreground line-through":
+                                    feature.type === "destructive",
+                                })}
+                                key={index}
+                              >
+                                {feature.icon && (
+                                  <Icon
+                                    className={cn("size-5 text-primary", {
+                                      "text-green-500":
+                                        feature.type === "success",
+                                      "text-destructive":
+                                        feature.type === "destructive",
+                                    })}
+                                    icon={feature.icon}
+                                  />
+                                )}
+                                {feature.label}
+                              </li>
+                            )
+                          )}
+                        </>
+                      );
+                    })()}
+                  </ul>
+                  <SubscribeDetail
+                    subscribe={{
+                      ...item,
+                      name: undefined,
+                    }}
+                  />
+                </CardContent>
+                <Separator />
+                <CardFooter className="flex flex-col gap-2">
+                  {(() => {
+                    const hasDiscount =
+                      item.discount && item.discount.length > 0;
+                    const shouldShowOriginal =
+                      item.show_original_price !== false;
+
+                    const displayPrice =
+                      shouldShowOriginal || !hasDiscount
+                        ? item.unit_price
+                        : Math.round(
+                            item.unit_price *
+                              (item.discount?.[0]?.quantity ?? 1) *
+                              ((item.discount?.[0]?.discount ?? 100) / 100)
+                          );
+
+                    const displayQuantity =
+                      shouldShowOriginal || !hasDiscount
+                        ? 1
+                        : (item.discount?.[0]?.quantity ?? 1);
+
+                    const unitTime =
+                      unitTimeMap[item.unit_time!] ||
+                      t(item.unit_time || "Month", item.unit_time || "Month");
+
+                    return (
+                      <h2 className="pb-8 font-semibold text-2xl sm:text-3xl">
+                        <Display type="currency" value={displayPrice} />
+                        <span className="font-medium text-base">
+                          {displayQuantity === 1
+                            ? `/${unitTime}`
+                            : `/${displayQuantity} ${unitTime}`}
+                        </span>
+                      </h2>
                     );
                   })()}
-                </ul>
-                <SubscribeDetail
-                  subscribe={{
-                    ...item,
-                    name: undefined,
-                  }}
-                />
-              </CardContent>
-              <Separator />
-              <CardFooter className="flex flex-col gap-2">
-                {(() => {
-                  const hasDiscount = item.discount && item.discount.length > 0;
-                  const shouldShowOriginal = item.show_original_price !== false;
-
-                  const displayPrice =
-                    shouldShowOriginal || !hasDiscount
-                      ? item.unit_price
-                      : Math.round(
-                          item.unit_price *
-                            (item.discount?.[0]?.quantity ?? 1) *
-                            ((item.discount?.[0]?.discount ?? 100) / 100)
-                        );
-
-                  const displayQuantity =
-                    shouldShowOriginal || !hasDiscount
-                      ? 1
-                      : (item.discount?.[0]?.quantity ?? 1);
-
-                  const unitTime =
-                    unitTimeMap[item.unit_time!] ||
-                    t(item.unit_time || "Month", item.unit_time || "Month");
-
-                  return (
-                    <h2 className="pb-8 font-semibold text-2xl sm:text-3xl">
-                      <Display type="currency" value={displayPrice} />
-                      <span className="font-medium text-base">
-                        {displayQuantity === 1
-                          ? `/${unitTime}`
-                          : `/${displayQuantity} ${unitTime}`}
-                      </span>
-                    </h2>
-                  );
-                })()}
-                <Button
-                  className="absolute bottom-0 w-full rounded-t-none rounded-b-xl"
-                  onClick={() => {
-                    setSubscribe(item);
-                  }}
-                >
-                  {t("buy", "Buy")}
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
-        {filteredData?.length === 0 && <Empty />}
+                  <Button
+                    className="absolute bottom-0 w-full rounded-t-none rounded-b-xl"
+                    onClick={() => {
+                      setSubscribe(item);
+                    }}
+                  >
+                    {t("buy", "Buy")}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            description={t("noPlansDesc", "Please check back later.")}
+            icon="uil:package"
+            title={t("noPlans", "No plans available")}
+          />
+        )}
       </div>
       <Purchase setSubscribe={setSubscribe} subscribe={subscribe} />
     </>
