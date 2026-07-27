@@ -33,8 +33,18 @@ export default function Content({
     NoLimit: t("NoLimit", "No Limit"),
     Year: t("Year", "Year"),
   };
-  const { common } = useGlobalStore();
+  const { common, user, isLoadingUser } = useGlobalStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoadingUser) {
+      return;
+    }
+    if (!user) {
+      navigate({ to: "/auth" });
+    }
+  }, [user, isLoadingUser, navigate]);
+
   const [params, setParams] = useState<API.PortalPurchaseRequest>({
     quantity: 1,
     subscribe_id: 0,
@@ -107,6 +117,10 @@ export default function Content({
       }
     });
   }, [params, navigate]);
+
+  if (isLoadingUser || !user) {
+    return null;
+  }
 
   if (!subscription) {
     return (

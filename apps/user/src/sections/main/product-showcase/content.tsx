@@ -255,10 +255,7 @@ export function Content({ subscriptionData }: ProductShowcaseProps) {
                           : "border border-slate-200 bg-white text-slate-950 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
                       )}
                     >
-                      <Link
-                        search={user ? undefined : { id: item.id }}
-                        to={user ? "/subscribe" : "/purchasing"}
-                      >
+                      <Link to={user ? "/subscribe" : "/auth"}>
                         {chooseText}
                       </Link>
                     </Button>
