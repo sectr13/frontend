@@ -62,5 +62,24 @@
     "unsubscribe": "Unsubscribe",
     "unsubscribeDescription": "Please note: If you unsubscribe now, the remaining value of the subscription will be refunded to your account balance, which can be used for your next subscription purchase or renewal."
   },
-  "Year": "Year"
+  "Year": "Year",
+  "pageTitle": "Choose your plan",
+  "pageSubtitle": "Connect all your devices to one private network with the right plan.",
+  "pageBadge": "Amraa Nets Network",
+  "monthlyPlan": "Monthly Plan",
+  "quarterlyPlan": "Quarterly Plan",
+  "annualPlan": "Annual Plan",
+  "duration30": "30 days",
+  "duration90": "90 days",
+  "duration365": "365 days",
+  "recommended": "Most Popular",
+  "chooseMonthly": "Choose Monthly",
+  "chooseQuarterly": "Choose Quarterly",
+  "chooseAnnual": "Choose Annual",
+  "choosePlan": "Choose Plan",
+  "traffic": "Available Traffic",
+  "speed": "Connection Speed",
+  "devices": "Connected Devices",
+  "noPlansTitle": "No plans available",
+  "noPlansDescription": "Please check back later or contact support."
 }

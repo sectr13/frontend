@@ -83,7 +83,7 @@ export default function Unsubscribe({
           </DialogDescription>
         </DialogHeader>
         <p>{t("unsubscribe.residualValue", "Residual Value")}</p>
-        <p className="font-semibold text-2xl text-primary">
+        <p className="font-semibold text-2xl text-orange-500">
           <Display type="currency" value={data} />
         </p>
         <p className="text-muted-foreground text-sm">

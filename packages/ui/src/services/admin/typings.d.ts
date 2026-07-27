@@ -2628,7 +2628,12 @@ declare namespace API {
   };
 
   type VersionResponse = {
+    product: string;
+    edition: string;
     version: string;
+    build: string;
+    commit: string;
+    build_time: string;
   };
 
   type Vless = {

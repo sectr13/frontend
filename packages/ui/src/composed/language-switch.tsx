@@ -17,8 +17,8 @@ const languages = [
   },
   {
     code: "zh-CN",
-    name: "中文",
-    flag: "🇨🇳",
+    name: "Монгол",
+    flag: "🇲🇳",
   },
 ];
 

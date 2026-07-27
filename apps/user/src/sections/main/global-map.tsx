@@ -1,53 +1,56 @@
-import { Icon } from "@workspace/ui/composed/icon";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-const COVERAGE_ICONS = [
-  "uil:server-network",
-  "uil:signal-alt-3",
-  "uil:wifi",
-  "uil:lock-alt",
+const STEPS = [
+  {
+    n: "1",
+    titleKey: "step1Title",
+    descKey: "step1Desc",
+    titleFallback: "Create account",
+    descFallback: "Sign up with email or OAuth in under a minute.",
+  },
+  {
+    n: "2",
+    titleKey: "step2Title",
+    descKey: "step2Desc",
+    titleFallback: "Activate service",
+    descFallback: "Pick a plan — monthly, quarterly, or annual.",
+  },
+  {
+    n: "3",
+    titleKey: "step3Title",
+    descKey: "step3Desc",
+    titleFallback: "Connect devices",
+    descFallback: "Install the app on each device and sign in.",
+  },
 ] as const;
 
-export function GlobalMap() {
+export function HowItWorks() {
   const { t } = useTranslation("main");
 
   return (
-    <motion.section
-      className="relative overflow-hidden rounded-2xl border bg-muted/20 px-8 py-16 text-center"
-      initial={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
-      whileInView={{ opacity: 1 }}
-    >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.07)_0%,transparent_65%)]"
-      />
-      <div className="relative flex flex-col items-center gap-6">
-        <div className="flex items-center gap-3">
-          {COVERAGE_ICONS.map((icon) => (
-            <div
-              className="flex size-10 items-center justify-center rounded-xl border bg-background shadow-sm"
-              key={icon}
-            >
-              <Icon className="size-5 text-muted-foreground" icon={icon} />
-            </div>
-          ))}
-        </div>
+    <section id="how">
+      <h2 className="mb-7 text-center font-bold text-2xl text-slate-950 tracking-tight sm:mb-10 sm:text-[32px] dark:text-slate-50">
+        {t("howItWorks", "How it works")}
+      </h2>
 
-        <div>
-          <h2 className="mb-3 font-bold text-2xl tracking-tight sm:text-3xl">
-            {t("global_map_title", "Built for global connectivity")}
-          </h2>
-          <p className="mx-auto max-w-lg text-base text-muted-foreground">
-            {t(
-              "global_map_description",
-              "Access your network from anywhere with consistent performance and enterprise-grade reliability."
-            )}
-          </p>
-        </div>
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-8">
+        {STEPS.map((s) => (
+          <div
+            className="flex flex-col items-center gap-3 px-4 py-3 text-center sm:gap-4"
+            key={s.n}
+          >
+            <div className="flex size-10 items-center justify-center rounded-full bg-orange-500 font-bold text-base text-white">
+              {s.n}
+            </div>
+            <h3 className="font-semibold text-base text-slate-950 leading-snug sm:text-lg dark:text-slate-100">
+              {t(s.titleKey, s.titleFallback)}
+            </h3>
+            <p className="max-w-[260px] text-slate-600 text-xs leading-relaxed sm:text-[13px] dark:text-slate-400">
+              {t(s.descKey, s.descFallback)}
+            </p>
+          </div>
+        ))}
       </div>
-    </motion.section>
+    </section>
   );
 }

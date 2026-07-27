@@ -13,7 +13,7 @@ const TABS = [
   },
   {
     url: "/subscribe",
-    icon: "uil:network-chart",
+    icon: "lucide:network",
     labelKey: "menu.network",
     label: "Network",
   },
@@ -54,7 +54,7 @@ export function MobileNav() {
               className={cn(
                 "flex flex-1 flex-col items-center justify-center gap-0.5 transition-colors",
                 active
-                  ? "text-primary"
+                  ? "text-orange-500"
                   : "text-muted-foreground hover:text-foreground"
               )}
               key={tab.url}

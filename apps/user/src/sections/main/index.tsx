@@ -1,7 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useGlobalStore } from "@/stores/global";
-import { GlobalMap } from "./global-map";
+import { HowItWorks } from "./global-map";
 import { Hero } from "./hero";
 import { ProductShowcase } from "./product-showcase";
 import { Stats } from "./stats";
@@ -31,11 +31,13 @@ export default function Main() {
   if (!showLanding) return null;
 
   return (
-    <main className="container space-y-24">
-      <Hero />
-      <Stats />
-      <ProductShowcase />
-      <GlobalMap />
+    <main className="bg-[#F8FAFC] text-slate-950 dark:bg-slate-950 dark:text-slate-50">
+      <div className="container space-y-14 pb-2 sm:space-y-20">
+        <Hero />
+        <Stats />
+        <ProductShowcase />
+        <HowItWorks />
+      </div>
     </main>
   );
 }

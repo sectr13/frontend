@@ -1325,6 +1325,7 @@ declare namespace API {
 
   type AmraaNetProfile = {
     activated: boolean;
+    subscription_status?: string; // "active", "expired", or absent for new users
     // activated = false: available plans to purchase
     plans?: AmraaNetPlan[];
     // activated = true: join profile fields
@@ -1333,15 +1334,17 @@ declare namespace API {
     auth_key?: string;
     default_exit_node?: string;
     setup_command?: string;
+    device_limit: number;
+    device_count: number;
+    can_add_device: boolean;
+    device_limit_reached: boolean;
   };
 
   type AmraaNetDevice = {
     Id: number;
-    UserId: number;
-    HeadscaleNodeId?: number;
-    MachineKey: string;
-    Hostname: string;
-    GivenName: string;
+    display_name: string;
+    device_type: string;
+    access_status: string; // "active", "expired", "disabled"
     TailscaleIp: string;
     LastSeen?: string;
     RxBytes: number;

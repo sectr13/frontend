@@ -129,7 +129,7 @@ export function TutorialButton({ items }: { items: Item[] }) {
               <motion.div layoutId={`image-${item.title}-${id}`}>
                 <Avatar className="size-12">
                   <AvatarImage alt={item.title ?? ""} src={item.icon ?? ""} />
-                  <AvatarFallback className="bg-primary/80 text-white">
+                  <AvatarFallback className="bg-orange-500/80 text-white">
                     {item.title.split("")[0]}
                   </AvatarFallback>
                 </Avatar>

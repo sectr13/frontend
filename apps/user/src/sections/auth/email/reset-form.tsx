@@ -65,7 +65,7 @@ export default function ResetForm({
   return (
     <>
       <Form {...form}>
-        <form className="grid gap-6" onSubmit={handleSubmit}>
+        <form className="grid gap-4 lg:gap-3" onSubmit={handleSubmit}>
           <FormField
             control={form.control}
             name="email"
@@ -73,7 +73,8 @@ export default function ResetForm({
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="Enter your email..."
+                    className="h-11 rounded-xl border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 lg:h-12 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                    placeholder={t("placeholders.email", "Enter your email...")}
                     type="email"
                     {...field}
                   />
@@ -90,8 +91,9 @@ export default function ResetForm({
                 <FormControl>
                   <div className="flex items-center gap-2">
                     <Input
+                      className="h-11 rounded-xl border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 lg:h-12 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                       disabled={loading}
-                      placeholder="Enter code..."
+                      placeholder={t("placeholders.code", "Enter code...")}
                       type="text"
                       {...field}
                       value={field.value as string}
@@ -116,7 +118,11 @@ export default function ResetForm({
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="Enter your new password..."
+                    className="h-11 rounded-xl border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 lg:h-12 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
+                    placeholder={t(
+                      "placeholders.newPassword",
+                      "Enter your new password..."
+                    )}
                     type="password"
                     {...field}
                   />
@@ -143,16 +149,20 @@ export default function ResetForm({
               )}
             />
           )}
-          <Button disabled={loading} type="submit">
+          <Button
+            className="h-11 rounded-xl bg-orange-500 font-semibold text-white shadow-none hover:bg-orange-600 active:bg-orange-700 lg:h-12 dark:bg-orange-500 dark:hover:bg-orange-600"
+            disabled={loading}
+            type="submit"
+          >
             {loading && <Icon className="animate-spin" icon="mdi:loading" />}
             {t("reset.title", "Reset Password")}
           </Button>
         </form>
       </Form>
-      <div className="mt-4 text-right text-sm">
+      <div className="mt-4 text-right text-slate-500 text-xs dark:text-slate-400">
         {t("reset.existingAccount", "Remember your password?")}&nbsp;
         <Button
-          className="p-0"
+          className="h-auto p-0 font-medium text-orange-600 text-xs hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
           onClick={() => {
             setInitialValues(undefined);
             onSwitchForm("login");

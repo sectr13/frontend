@@ -17,12 +17,18 @@ import LoginForm from "./login-form";
 import RegisterForm from "./register-form";
 import ResetForm from "./reset-form";
 
-export default function EmailAuthForm() {
+type AuthFormType = "login" | "register" | "reset";
+
+export default function EmailAuthForm({
+  onTypeChange,
+}: {
+  onTypeChange?: (type: AuthFormType) => void;
+}) {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const { getUserInfo } = useGlobalStore();
   const searchParams = useSearch({ strict: false }) as { invite?: string };
-  const [type, setType] = useState<"login" | "register" | "reset">("login");
+  const [type, setType] = useState<AuthFormType>("login");
   const [loading, startTransition] = useTransition();
   const [initialValues, setInitialValues] = useState<{
     email?: string;
@@ -39,6 +45,10 @@ export default function EmailAuthForm() {
       setInitialValues((prev) => ({ ...prev, invite: searchParams.invite }));
     }
   }, [searchParams.invite]);
+
+  useEffect(() => {
+    onTypeChange?.(type);
+  }, [onTypeChange, type]);
 
   const handleFormSubmit = async (params: any) => {
     const onLogin = async (token?: string) => {

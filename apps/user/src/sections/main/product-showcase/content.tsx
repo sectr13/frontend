@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
   Card,
@@ -35,169 +36,238 @@ export function Content({ subscriptionData }: ProductShowcaseProps) {
 
   return (
     <motion.section
-      id="plans"
-      initial={{ opacity: 0 }}
+      className="scroll-mt-20"
+      id="pricing"
+      initial={false}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
       whileInView={{ opacity: 1 }}
     >
       <motion.h2
-        className="mb-2 text-center font-bold text-3xl"
-        initial={{ opacity: 0, y: -20 }}
+        className="mb-7 text-center font-bold text-2xl text-slate-950 tracking-tight sm:mb-9 sm:text-[32px] dark:text-slate-50"
+        initial={false}
         transition={{ duration: 0.5 }}
         whileInView={{ opacity: 1, y: 0 }}
       >
-        {t("product_showcase_title", "Choose Your Package")}
+        {t("product_showcase_title", "Simple pricing")}
       </motion.h2>
-      <motion.p
-        className="mb-8 text-center text-lg text-muted-foreground"
-        initial={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.5, delay: 0.1 }}
-        whileInView={{ opacity: 1, y: 0 }}
-      >
-        {t(
-          "product_showcase_description",
-          "Let us help you select the package that best suits you and enjoy exploring it."
-        )}
-      </motion.p>
-      <div className="mx-auto flex flex-wrap justify-center gap-8 overflow-x-auto overflow-y-hidden *:max-w-80 *:flex-auto">
-        {subscriptionData?.map((item, index) => (
-          <motion.div
-            className="w-1/2 lg:w-1/4"
-            initial={{ opacity: 0, y: 50 }}
-            key={item.id}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            viewport={{ once: true, amount: 0.5 }}
-            whileInView={{ opacity: 1, y: 0 }}
-          >
-            <Card className="flex flex-col gap-0 overflow-hidden rounded-lg py-0 shadow-lg transition-shadow duration-300 hover:shadow-2xl">
-              <CardHeader className="bg-muted/50 p-4 font-medium text-xl">
-                {item.name}
-              </CardHeader>
-              <CardContent className="flex flex-grow flex-col gap-4 p-6 text-sm">
-                <ul className="flex flex-grow flex-col gap-3">
-                  {(() => {
-                    let parsedDescription: {
-                      description: string;
-                      features: Array<{
-                        icon: string;
-                        label: ReactNode;
-                        type: "default" | "success" | "destructive";
-                      }>;
-                    };
-                    try {
-                      parsedDescription = JSON.parse(item.description);
-                    } catch {
-                      parsedDescription = { description: "", features: [] };
-                    }
 
-                    const { description, features } = parsedDescription;
-                    return (
-                      <>
-                        {description && (
-                          <li className="text-muted-foreground">
-                            {description}
-                          </li>
-                        )}
-                        {features?.map(
-                          (
-                            feature: {
-                              type: string;
-                              icon: string;
-                              label: ReactNode;
-                            },
-                            index: Key
-                          ) => (
-                            <li
-                              className={cn("flex items-center gap-2", {
-                                "text-muted-foreground line-through":
-                                  feature.type === "destructive",
-                              })}
-                              key={index}
-                            >
-                              {feature.icon && (
-                                <Icon
-                                  className={cn("size-5 text-primary", {
-                                    "text-green-500":
-                                      feature.type === "success",
-                                    "text-destructive":
-                                      feature.type === "destructive",
-                                  })}
-                                  icon={feature.icon}
-                                />
-                              )}
-                              {feature.label}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-5">
+        {subscriptionData?.map((item, index) => {
+          const rawKey = item.name.toLowerCase().replace(/\s/g, "");
+          const isHighlighted = rawKey === "365days";
+
+          // Fully localized plan label — never uses English string as display value
+          const label = (() => {
+            if (rawKey === "30days") return t("planLabel30days", "Monthly");
+            if (rawKey === "90days") return t("planLabel90days", "Quarterly");
+            if (rawKey === "365days") return t("planLabel365days", "Annual");
+            return item.name;
+          })();
+
+          const duration = (() => {
+            if (rawKey === "30days") return t("planDuration30days", "30 Days");
+            if (rawKey === "90days") return t("planDuration90days", "90 Days");
+            if (rawKey === "365days")
+              return t("planDuration365days", "365 Days");
+            return "";
+          })();
+
+          const chooseText = (() => {
+            if (rawKey === "30days")
+              return t("choosePlan30days", "Choose monthly");
+            if (rawKey === "90days")
+              return t("choosePlan90days", "Choose quarterly");
+            if (rawKey === "365days")
+              return t("choosePlan365days", "Choose annual");
+            return label;
+          })();
+
+          return (
+            <motion.div
+              className="w-full"
+              initial={false}
+              key={item.id}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true, amount: 0.3 }}
+              whileInView={{ opacity: 1, y: 0 }}
+            >
+              <Card
+                className={cn(
+                  "flex flex-col gap-0 overflow-hidden rounded-[20px] border-slate-200 bg-white py-0 text-slate-950 transition-shadow duration-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100",
+                  isHighlighted
+                    ? "border-orange-400 shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1)] dark:border-orange-500 dark:bg-slate-900"
+                    : "shadow-sm hover:shadow-lg dark:shadow-none"
+                )}
+              >
+                <CardHeader
+                  className={cn(
+                    "p-4",
+                    isHighlighted
+                      ? "bg-orange-50/70 dark:bg-orange-950/10"
+                      : "bg-slate-50 dark:bg-slate-800/40"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-base leading-tight sm:text-lg">
+                        {label}
+                      </p>
+                      {duration && (
+                        <p className="mt-0.5 font-normal text-[11px] text-slate-500 sm:text-xs dark:text-slate-500">
+                          {duration}
+                        </p>
+                      )}
+                    </div>
+                    {isHighlighted && (
+                      <Badge className="shrink-0 border-orange-200 bg-orange-100 text-[10px] text-orange-700 sm:text-[11px] dark:border-orange-500/40 dark:bg-orange-950/30 dark:text-orange-300">
+                        {t("bestValue", "Best value")}
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent
+                  className={cn(
+                    "flex flex-col gap-3 p-4 [&>div.font-semibold]:uppercase [&>div.font-semibold]:tracking-wide [&>ul]:gap-2",
+                    "text-xs sm:text-sm [&>div.font-semibold]:text-[10px] sm:[&>div.font-semibold]:text-xs",
+                    "[&>div.font-semibold]:text-slate-950 dark:[&>div.font-semibold]:text-slate-100"
+                  )}
+                >
+                  <ul className="flex flex-col gap-2">
+                    {(() => {
+                      let parsedDescription: {
+                        description: string;
+                        features: Array<{
+                          icon: string;
+                          label: ReactNode;
+                          type: "default" | "success" | "destructive";
+                        }>;
+                      };
+                      try {
+                        parsedDescription = JSON.parse(item.description);
+                      } catch {
+                        parsedDescription = { description: "", features: [] };
+                      }
+
+                      const { description, features } = parsedDescription;
+                      return (
+                        <>
+                          {description && (
+                            <li className="text-slate-600 dark:text-slate-400">
+                              {description}
                             </li>
-                          )
-                        )}
-                      </>
+                          )}
+                          {features?.map(
+                            (
+                              feature: {
+                                type: string;
+                                icon: string;
+                                label: ReactNode;
+                              },
+                              featureIndex: Key
+                            ) => (
+                              <li
+                                className={cn("flex items-center gap-2", {
+                                  "text-slate-500 line-through dark:text-slate-500":
+                                    feature.type === "destructive",
+                                })}
+                                key={featureIndex}
+                              >
+                                {feature.icon && (
+                                  <Icon
+                                    className={cn("size-4 text-orange-500", {
+                                      "text-green-500":
+                                        feature.type === "success",
+                                      "text-destructive":
+                                        feature.type === "destructive",
+                                    })}
+                                    icon={feature.icon}
+                                  />
+                                )}
+                                {feature.label}
+                              </li>
+                            )
+                          )}
+                        </>
+                      );
+                    })()}
+                  </ul>
+                  <SubscribeDetail
+                    subscribe={{
+                      ...item,
+                      name: undefined,
+                    }}
+                  />
+                </CardContent>
+
+                <Separator className="bg-slate-200 dark:bg-slate-800" />
+
+                <CardFooter className="flex flex-col items-stretch p-4">
+                  {(() => {
+                    const hasDiscount =
+                      item.discount && item.discount.length > 0;
+                    const shouldShowOriginal =
+                      item.show_original_price !== false;
+
+                    const displayPrice =
+                      shouldShowOriginal || !hasDiscount
+                        ? item.unit_price
+                        : Math.round(
+                            item.unit_price *
+                              (item.discount?.[0]?.quantity ?? 1) *
+                              ((item.discount?.[0]?.discount ?? 100) / 100)
+                          );
+
+                    const displayQuantity =
+                      shouldShowOriginal || !hasDiscount
+                        ? 1
+                        : (item.discount?.[0]?.quantity ?? 1);
+
+                    const unitTime =
+                      unitTimeMap[item.unit_time!] ||
+                      t(item.unit_time || "Month", item.unit_time || "Month");
+
+                    return (
+                      <motion.h2
+                        animate={{ opacity: 1 }}
+                        className="pb-3 font-bold text-2xl tracking-tight"
+                        initial={false}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                      >
+                        <Display type="currency" value={displayPrice} />
+                        <span className="ml-1 font-normal text-slate-500 text-xs tracking-normal sm:text-[13px] dark:text-slate-500">
+                          {displayQuantity === 1
+                            ? `/${unitTime}`
+                            : `/${displayQuantity} ${unitTime}`}
+                        </span>
+                      </motion.h2>
                     );
                   })()}
-                </ul>
-                <SubscribeDetail
-                  subscribe={{
-                    ...item,
-                    name: undefined,
-                  }}
-                />
-              </CardContent>
-              <Separator />
-              <CardFooter className="relative flex flex-col gap-4 p-4">
-                {(() => {
-                  const hasDiscount = item.discount && item.discount.length > 0;
-                  const shouldShowOriginal = item.show_original_price !== false;
-
-                  const displayPrice =
-                    shouldShowOriginal || !hasDiscount
-                      ? item.unit_price
-                      : Math.round(
-                          item.unit_price *
-                            (item.discount?.[0]?.quantity ?? 1) *
-                            ((item.discount?.[0]?.discount ?? 100) / 100)
-                        );
-
-                  const displayQuantity =
-                    shouldShowOriginal || !hasDiscount
-                      ? 1
-                      : (item.discount?.[0]?.quantity ?? 1);
-
-                  const unitTime =
-                    unitTimeMap[item.unit_time!] ||
-                    t(item.unit_time || "Month", item.unit_time || "Month");
-
-                  return (
-                    <motion.h2
-                      animate={{ opacity: 1 }}
-                      className="pb-4 font-semibold text-2xl sm:text-3xl"
-                      initial={{ opacity: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
+                  <motion.div>
+                    <Button
+                      asChild
+                      className={cn(
+                        "h-11 w-full rounded-xl font-semibold",
+                        "text-xs sm:text-sm",
+                        isHighlighted
+                          ? "bg-orange-500 text-white hover:bg-orange-600 active:bg-orange-700"
+                          : "border border-slate-200 bg-white text-slate-950 hover:bg-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                      )}
                     >
-                      <Display type="currency" value={displayPrice} />
-                      <span className="font-medium text-base">
-                        {displayQuantity === 1
-                          ? `/${unitTime}`
-                          : `/${displayQuantity} ${unitTime}`}
-                      </span>
-                    </motion.h2>
-                  );
-                })()}
-                <motion.div>
-                  <Button
-                    asChild
-                    className="absolute bottom-0 left-0 w-full rounded-t-none rounded-b-xl"
-                  >
-                    <Link
-                      search={user ? undefined : { id: item.id }}
-                      to={user ? "/subscribe" : "/purchasing"}
-                    >
-                      {t("subscribe", "Subscribe")}
-                    </Link>
-                  </Button>
-                </motion.div>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        ))}
+                      <Link
+                        search={user ? undefined : { id: item.id }}
+                        to={user ? "/subscribe" : "/purchasing"}
+                      >
+                        {chooseText}
+                      </Link>
+                    </Button>
+                  </motion.div>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.section>
   );

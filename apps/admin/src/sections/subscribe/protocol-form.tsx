@@ -414,7 +414,7 @@ export function ProtocolForm() {
               </h2>
               <a
                 className="inline-flex items-center gap-2 rounded-md px-3 py-1 font-medium text-primary text-sm hover:underline"
-                href="https://github.com/perfect-panel/subscription-template"
+                href="https://github.com/perfect-panel/frontend"
                 rel="noreferrer noopener"
                 target="_blank"
               >

@@ -3,6 +3,7 @@
 import { Button } from "@workspace/ui/components/button";
 import { Icon } from "@workspace/ui/composed/icon";
 import { oAuthLogin } from "@workspace/ui/services/common/oauth";
+import { useTranslation } from "react-i18next";
 import { useGlobalStore } from "@/stores/global";
 
 const icons = {
@@ -14,6 +15,7 @@ const icons = {
 };
 
 export function OAuthMethods() {
+  const { t } = useTranslation("auth");
   const { common } = useGlobalStore();
   const { oauth_methods } = common;
   const OAUTH_METHODS = oauth_methods?.filter(
@@ -22,15 +24,15 @@ export function OAuthMethods() {
   return (
     OAUTH_METHODS?.length > 0 && (
       <>
-        <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-border after:border-t">
-          <span className="relative z-10 bg-background px-2 text-muted-foreground">
-            Or continue with
+        <div className="relative text-center text-xs after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-slate-200 after:border-t dark:after:border-slate-800">
+          <span className="relative z-10 bg-white px-3 text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+            {t("oauth.or", "or")}
           </span>
         </div>
-        <div className="mt-6 flex justify-center gap-4 *:size-12 *:p-2">
+        <div className="mt-5 grid gap-3">
           {OAUTH_METHODS?.map((method: string) => (
             <Button
-              asChild
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white font-medium text-slate-700 text-sm shadow-none hover:bg-slate-50 lg:h-12 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
               key={method}
               onClick={async () => {
                 const { data } = await oAuthLogin({
@@ -44,10 +46,14 @@ export function OAuthMethods() {
                   window.location.href = data.data?.redirect;
                 }
               }}
-              size="icon"
-              variant="ghost"
+              type="button"
+              variant="outline"
             >
-              <Icon icon={icons[method as keyof typeof icons]} />
+              <Icon
+                className="mr-2 size-4"
+                icon={icons[method as keyof typeof icons]}
+              />
+              {t(`oauth.${method}`, `Continue with ${method}`)}
             </Button>
           ))}
         </div>

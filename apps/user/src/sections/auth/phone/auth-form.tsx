@@ -16,12 +16,18 @@ import LoginForm from "./login-form";
 import RegisterForm from "./register-form";
 import ResetForm from "./reset-form";
 
-export default function PhoneAuthForm() {
+type AuthFormType = "login" | "register" | "reset";
+
+export default function PhoneAuthForm({
+  onTypeChange,
+}: {
+  onTypeChange?: (type: AuthFormType) => void;
+}) {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
   const { getUserInfo } = useGlobalStore();
   const searchParams = useSearch({ strict: false }) as { invite?: string };
-  const [type, setType] = useState<"login" | "register" | "reset">("login");
+  const [type, setType] = useState<AuthFormType>("login");
   const [loading, startTransition] = useTransition();
   const [initialValues, setInitialValues] = useState<API.TelephoneLoginRequest>(
     {
@@ -39,6 +45,10 @@ export default function PhoneAuthForm() {
       setInitialValues((prev) => ({ ...prev, invite: searchParams.invite }));
     }
   }, [searchParams.invite]);
+
+  useEffect(() => {
+    onTypeChange?.(type);
+  }, [onTypeChange, type]);
 
   const handleFormSubmit = async (params: any) => {
     const onLogin = async (token?: string) => {

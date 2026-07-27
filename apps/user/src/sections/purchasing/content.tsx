@@ -254,7 +254,7 @@ export default function Content({
                         >
                           {feature.icon && (
                             <Icon
-                              className={cn("size-5 text-primary", {
+                              className={cn("size-5 text-orange-500", {
                                 "text-green-500": feature.type === "success",
                                 "text-destructive":
                                   feature.type === "destructive",
@@ -315,7 +315,7 @@ export default function Content({
         </Card>
 
         <Button
-          className="w-full"
+          className="w-full bg-orange-500 text-white hover:bg-orange-600"
           disabled={!isEmailValid.valid || loading}
           onClick={handleSubmit}
           size="lg"

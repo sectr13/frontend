@@ -1,0 +1,60 @@
+/*
+ * Amraa Nets — user-app visual overrides
+ * Imported after @workspace/ui/globals.css in main.tsx.
+ * Scope: user frontend only. Admin app is unaffected.
+ */
+
+/* ── Font family ─────────────────────────────────────────────────────────── */
+body {
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+/* ── Font weight remapping ───────────────────────────────────────────────── */
+/*
+ * Unlayered CSS rules override Tailwind's @layer utilities cascade.
+ * font-semibold (600) → 500 (medium)
+ * font-bold     (700) → 500 (medium)
+ * All other weights (300, 400, 500) are unchanged.
+ */
+.font-semibold {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 500;
+}
+
+/* ── Brand color: remap --primary from teal to Amraa orange ─────────────── */
+/*
+ * The shared ui package sets --primary to a teal/blue oklch value.
+ * These unlayered :root / .dark overrides remap it to #F97316 (orange-500)
+ * for the user app only. Admin is unaffected.
+ *
+ * All component uses of bg-primary, text-primary, border-primary,
+ * ring-primary, bg-primary/10 etc. will now render orange.
+ *
+ * sidebar-primary and sidebar-accent are also remapped so the sidebar
+ * active item (SidebarMenuButton[data-active]) uses orange rather than teal.
+ */
+:root {
+  /* orange-500 = #F97316 */
+  --primary: oklch(0.705 0.191 35.22);
+  /* foreground on orange (white) */
+  --primary-foreground: oklch(1 0 0);
+  /* sidebar active item: orange-500 / orange-50 */
+  --sidebar-primary: oklch(0.705 0.191 35.22);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.974 0.019 35.22); /* orange-50 */
+  --sidebar-accent-foreground: oklch(0.586 0.191 35.22); /* orange-600 */
+}
+
+.dark {
+  /* orange-400 ≈ #FB923C for dark mode primary */
+  --primary: oklch(0.754 0.185 35.22);
+  --primary-foreground: oklch(0.2 0.04 35.22);
+  /* sidebar dark: orange-500/10 background, orange-400 text */
+  --sidebar-primary: oklch(0.754 0.185 35.22);
+  --sidebar-primary-foreground: oklch(0.2 0.04 35.22);
+  --sidebar-accent: oklch(0.25 0.03 35.22); /* orange-500/10 on dark */
+  --sidebar-accent-foreground: oklch(0.754 0.185 35.22); /* orange-400 */
+}

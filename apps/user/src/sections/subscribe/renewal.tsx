@@ -113,7 +113,12 @@ export default function Renewal({ id, subscribe }: Readonly<RenewalProps>) {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
-        <Button size="sm">{t("renew", "Renew")}</Button>
+        <Button
+          className="bg-orange-500 text-white hover:bg-orange-600"
+          size="sm"
+        >
+          {t("renew", "Renew")}
+        </Button>
       </DialogTrigger>
       <DialogContent className="flex h-full flex-col overflow-y-auto md:h-auto md:max-w-screen-lg">
         <DialogHeader>
@@ -164,7 +169,7 @@ export default function Renewal({ id, subscribe }: Readonly<RenewalProps>) {
               />
             </div>
             <Button
-              className="sticky bottom-0 left-0 w-full md:relative md:mt-6"
+              className="sticky bottom-0 left-0 w-full bg-orange-500 text-white hover:bg-orange-600 md:relative md:mt-6"
               disabled={loading}
               onClick={handleSubmit}
             >

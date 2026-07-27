@@ -27,7 +27,7 @@ export function useNavs() {
       items: [
         {
           url: "/subscribe",
-          icon: "uil:network-chart",
+          icon: "lucide:network",
           title: t("menu.network", "Network"),
         },
         {
@@ -115,7 +115,7 @@ export function useNavItems() {
     },
     {
       url: "/subscribe",
-      icon: "uil:network-chart",
+      icon: "lucide:network",
       title: t("menu.network", "Network"),
     },
     {

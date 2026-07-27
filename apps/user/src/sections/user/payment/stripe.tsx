@@ -234,7 +234,7 @@ const CardPaymentForm: React.FC<CardPaymentFormProps> = ({
           </div>
           <div className="mt-6 flex flex-col space-y-4">
             <Button
-              className="w-full"
+              className="w-full bg-orange-500 text-white hover:bg-orange-600"
               disabled={processing || !stripe || !elements}
               type="submit"
             >
@@ -374,6 +374,7 @@ const CheckoutForm: React.FC<Omit<StripePaymentProps, "publishable_key">> = ({
         />
       ) : (
         <QRCodeCanvas
+          fgColor="#F97316"
           imageSettings={{
             src: `./assets/payment/${method}.svg`,
             width: 24,

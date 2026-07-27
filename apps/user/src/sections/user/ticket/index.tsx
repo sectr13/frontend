@@ -110,7 +110,12 @@ export default function Ticket() {
               open={create?.open}
             >
               <DialogTrigger asChild>
-                <Button size="sm">{t("createTicket", "Create Ticket")}</Button>
+                <Button
+                  className="bg-orange-500 text-white hover:bg-orange-600"
+                  size="sm"
+                >
+                  {t("createTicket", "Create Ticket")}
+                </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -143,6 +148,7 @@ export default function Ticket() {
                 </div>
                 <DialogFooter>
                   <Button
+                    className="bg-orange-500 text-white hover:bg-orange-600"
                     disabled={!(create?.title && create?.description)}
                     onClick={async () => {
                       await createUserTicket({
@@ -203,6 +209,7 @@ export default function Ticket() {
                 {item.status !== 4 ? (
                   <>
                     <Button
+                      className="bg-orange-500 text-white hover:bg-orange-600"
                       key="reply"
                       onClick={() => setTicketId(item.id)}
                       size="sm"
@@ -235,6 +242,7 @@ export default function Ticket() {
                   </>
                 ) : (
                   <Button
+                    className="bg-orange-500 text-white hover:bg-orange-600"
                     key="check"
                     onClick={() => setTicketId(item.id)}
                     size="sm"
@@ -314,8 +322,7 @@ export default function Ticket() {
                       className={cn(
                         "w-fit rounded-lg bg-accent p-2 font-medium",
                         {
-                          "bg-primary text-primary-foreground":
-                            item.from !== "System",
+                          "bg-orange-500 text-white": item.from !== "System",
                         }
                       )}
                     >
@@ -423,7 +430,11 @@ export default function Ticket() {
                   placeholder={t("inputPlaceholder", "Type a message...")}
                   value={message}
                 />
-                <Button disabled={!message} type="submit">
+                <Button
+                  className="bg-orange-500 text-white hover:bg-orange-600"
+                  disabled={!message}
+                  type="submit"
+                >
                   <Icon icon="uil:navigator" />
                 </Button>
               </form>

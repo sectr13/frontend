@@ -1,7 +1,17 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@workspace/ui/components/alert-dialog";
 import { Badge } from "@workspace/ui/components/badge";
 import { Button } from "@workspace/ui/components/button";
 import {
@@ -11,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card";
+import { Input } from "@workspace/ui/components/input";
 import { Separator } from "@workspace/ui/components/separator";
 import { Skeleton } from "@workspace/ui/components/skeleton";
 import {
@@ -22,13 +33,17 @@ import {
 import { Icon } from "@workspace/ui/composed/icon";
 import { cn } from "@workspace/ui/lib/utils";
 import {
+  deleteUserAmraaNetDevice,
   getAmraaNetProfile,
   getUserAmraaNetDevices,
+  regenerateUserAmraaNetAuthKey,
+  renameUserAmraaNetDevice,
 } from "@workspace/ui/services/user/amraanet";
 import { formatBytes } from "@workspace/ui/utils/formatting";
 import { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { CopyButton } from "@/components/copy-button";
 
 // ---------------------------------------------------------------------------
@@ -65,6 +80,10 @@ function relativeTime(
 
 export default function AmraaNet() {
   const { t } = useTranslation("amraanet");
+  const queryClient = useQueryClient();
+  const [deviceToDelete, setDeviceToDelete] =
+    useState<API.AmraaNetDevice | null>(null);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["amraanet-profile"],
@@ -80,6 +99,43 @@ export default function AmraaNet() {
     queryFn: async () => {
       const res = await getUserAmraaNetDevices({ page: 1, size: 50 });
       return res.data.data as API.AmraaNetDevicesResponse;
+    },
+  });
+
+  const deleteDevice = useMutation({
+    mutationFn: (deviceId: number) => deleteUserAmraaNetDevice(deviceId),
+    onSuccess: async () => {
+      setDeviceToDelete(null);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["amraanet-profile"] }),
+        queryClient.invalidateQueries({ queryKey: ["amraanet-devices"] }),
+      ]);
+      toast.success(t("deviceDeleted", "Device removed"));
+    },
+    onError: () => {
+      toast.error(t("deviceDeleteFailed", "Failed to remove device"));
+    },
+  });
+
+  const regenerateAuthKey = useMutation({
+    mutationFn: () => regenerateUserAmraaNetAuthKey(),
+    onSuccess: async () => {
+      setShowRegenerateConfirm(false);
+      await queryClient.invalidateQueries({ queryKey: ["amraanet-profile"] });
+      toast.success(
+        t(
+          "authKeyRegenerated",
+          "New AuthKey generated. Use the updated command to add your device."
+        )
+      );
+    },
+    onError: () => {
+      toast.error(
+        t(
+          "authKeyRegenerateFailed",
+          "Failed to regenerate AuthKey. Please try again."
+        )
+      );
     },
   });
 
@@ -103,6 +159,9 @@ export default function AmraaNet() {
   }
 
   if (!data.activated) {
+    if (data.subscription_status === "expired") {
+      return <ExpiredSubscriptionView />;
+    }
     return <NotActivatedView plans={data.plans ?? []} />;
   }
 
@@ -112,7 +171,7 @@ export default function AmraaNet() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-primary" icon="uil:wifi" />
+            <Icon className="h-5 w-5 text-orange-500" icon="uil:wifi" />
             <CardTitle>{t("title", "AmraaNet Service")}</CardTitle>
             <Badge
               className="ml-auto border-green-600 text-green-600"
@@ -158,21 +217,27 @@ export default function AmraaNet() {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="desktop">
-            <TabsList className="mb-4">
-              <TabsTrigger value="desktop">
-                <Icon className="mr-1.5 h-4 w-4" icon="uil:desktop" />
-                {t("desktop", "Mac / Linux")}
+            <TabsList className="mb-4 grid w-full grid-cols-4">
+              <TabsTrigger className="gap-1 text-xs sm:text-sm" value="desktop">
+                <Icon className="h-4 w-4 shrink-0" icon="uil:desktop" />
+                <span className="hidden sm:inline">
+                  {t("desktop", "Mac / Linux")}
+                </span>
+                <span className="sm:hidden">Mac</span>
               </TabsTrigger>
-              <TabsTrigger value="windows">
-                <Icon className="mr-1.5 h-4 w-4" icon="uil:windows" />
-                {t("windows", "Windows")}
+              <TabsTrigger className="gap-1 text-xs sm:text-sm" value="windows">
+                <Icon className="h-4 w-4 shrink-0" icon="uil:windows" />
+                <span className="hidden sm:inline">
+                  {t("windows", "Windows")}
+                </span>
+                <span className="sm:hidden">Win</span>
               </TabsTrigger>
-              <TabsTrigger value="ios">
-                <Icon className="mr-1.5 h-4 w-4" icon="uil:apple" />
+              <TabsTrigger className="gap-1 text-xs sm:text-sm" value="ios">
+                <Icon className="h-4 w-4 shrink-0" icon="uil:apple" />
                 iOS
               </TabsTrigger>
-              <TabsTrigger value="android">
-                <Icon className="mr-1.5 h-4 w-4" icon="uil:android" />
+              <TabsTrigger className="gap-1 text-xs sm:text-sm" value="android">
+                <Icon className="h-4 w-4 shrink-0" icon="uil:android" />
                 Android
               </TabsTrigger>
             </TabsList>
@@ -189,6 +254,11 @@ export default function AmraaNet() {
                 {t("desktopStep2", "2. Join the network (run once):")}
               </p>
               <DarkCodeBlock code={data.setup_command} />
+              <RegenerateAuthKeyButton
+                isLoading={regenerateAuthKey.isPending}
+                onRegenerate={() => setShowRegenerateConfirm(true)}
+                t={t}
+              />
             </TabsContent>
 
             {/* Windows */}
@@ -206,6 +276,11 @@ export default function AmraaNet() {
                 )}
               </p>
               <DarkCodeBlock code={data.setup_command} />
+              <RegenerateAuthKeyButton
+                isLoading={regenerateAuthKey.isPending}
+                onRegenerate={() => setShowRegenerateConfirm(true)}
+                t={t}
+              />
             </TabsContent>
 
             {/* iOS */}
@@ -238,6 +313,11 @@ export default function AmraaNet() {
                   />
                 </li>
               </ol>
+              <RegenerateAuthKeyButton
+                isLoading={regenerateAuthKey.isPending}
+                onRegenerate={() => setShowRegenerateConfirm(true)}
+                t={t}
+              />
             </TabsContent>
 
             {/* Android */}
@@ -270,13 +350,106 @@ export default function AmraaNet() {
                   />
                 </li>
               </ol>
+              <RegenerateAuthKeyButton
+                isLoading={regenerateAuthKey.isPending}
+                onRegenerate={() => setShowRegenerateConfirm(true)}
+                t={t}
+              />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
       {/* My Devices — always shown when activated */}
-      <DeviceSection devices={devicesData?.list} isLoading={devicesLoading} />
+      <DeviceSection
+        deviceCount={data.device_count}
+        deviceLimit={data.device_limit}
+        devices={devicesData?.list}
+        isLoading={devicesLoading}
+        onDelete={setDeviceToDelete}
+      />
+
+      {/* Delete device confirmation */}
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!(open || deleteDevice.isPending)) {
+            setDeviceToDelete(null);
+          }
+        }}
+        open={deviceToDelete !== null}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("deleteDeviceTitle", "Remove this device?")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                "deleteDeviceDescription",
+                "Deleting this device will require it to log in again."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteDevice.isPending}>
+              {t("cancel", "Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteDevice.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                if (deviceToDelete) {
+                  deleteDevice.mutate(deviceToDelete.Id);
+                }
+              }}
+            >
+              {deleteDevice.isPending
+                ? t("deletingDevice", "Removing...")
+                : t("deleteDevice", "Remove device")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Regenerate AuthKey confirmation */}
+      <AlertDialog
+        onOpenChange={(open) => {
+          if (!(open || regenerateAuthKey.isPending)) {
+            setShowRegenerateConfirm(false);
+          }
+        }}
+        open={showRegenerateConfirm}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("regenerateAuthKeyTitle", "AuthKey-г дахин үүсгэх үү?")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                "regenerateAuthKeyDescription",
+                "AuthKey-г дахин үүсгэх үү? Хуучин холболтын команд шинэ төхөөрөмж нэмэхэд ашиглагдахгүй."
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={regenerateAuthKey.isPending}>
+              {t("cancel", "Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={regenerateAuthKey.isPending}
+              onClick={(event) => {
+                event.preventDefault();
+                regenerateAuthKey.mutate();
+              }}
+            >
+              {regenerateAuthKey.isPending
+                ? t("regeneratingAuthKey", "Үүсгэж байна...")
+                : t("regenerateAuthKey", "AuthKey дахин үүсгэх")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -286,13 +459,27 @@ export default function AmraaNet() {
 // ---------------------------------------------------------------------------
 
 function DeviceSection({
+  deviceCount,
+  deviceLimit,
   devices,
   isLoading,
+  onDelete,
 }: {
+  deviceCount: number;
+  deviceLimit: number;
   devices: API.AmraaNetDevice[] | undefined;
   isLoading: boolean;
+  onDelete: (device: API.AmraaNetDevice) => void;
 }) {
   const { t } = useTranslation("amraanet");
+  const countLabel =
+    deviceLimit > 0
+      ? t("deviceCount", {
+          count: deviceCount,
+          defaultValue: "{{count}} / {{limit}} devices",
+          limit: deviceLimit,
+        })
+      : t("unlimitedDevices", "Unlimited");
 
   return (
     <Card>
@@ -302,9 +489,9 @@ function DeviceSection({
           <CardTitle className="text-base">
             {t("myDevices", "My Devices")}
           </CardTitle>
-          {!isLoading && devices && devices.length > 0 && (
+          {!isLoading && (
             <Badge className="ml-auto" variant="secondary">
-              {devices.length}
+              {countLabel}
             </Badge>
           )}
         </div>
@@ -334,11 +521,17 @@ function DeviceSection({
                 )}
               </p>
             </div>
+            <p className="max-w-sm text-muted-foreground text-xs">
+              {t(
+                "noDevicesSetup",
+                "Use the setup instructions above on your computer or phone. It will appear here after connecting."
+              )}
+            </p>
           </div>
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
             {devices.map((device) => (
-              <DeviceCard device={device} key={device.Id} />
+              <DeviceCard device={device} key={device.Id} onDelete={onDelete} />
             ))}
           </div>
         )}
@@ -348,49 +541,164 @@ function DeviceSection({
 }
 
 // ---------------------------------------------------------------------------
+// DeviceCard helpers
+// ---------------------------------------------------------------------------
+
+function deviceTypeIcon(type: string): string {
+  switch (type) {
+    case "mac":
+      return "uil:laptop";
+    case "iphone":
+    case "ipad":
+    case "android":
+      return "uil:mobile-android";
+    case "windows":
+      return "uil:desktop";
+    case "linux":
+      return "uil:server";
+    default:
+      return "uil:monitor";
+  }
+}
+
+// ---------------------------------------------------------------------------
 // DeviceCard
 // ---------------------------------------------------------------------------
 
-function DeviceCard({ device }: { device: API.AmraaNetDevice }) {
+function DeviceCard({
+  device,
+  onDelete,
+}: {
+  device: API.AmraaNetDevice;
+  onDelete: (device: API.AmraaNetDevice) => void;
+}) {
   const { t } = useTranslation("amraanet");
-  const online = isOnline(device.LastSeen);
-  const name = device.GivenName || device.Hostname || "—";
+  const queryClient = useQueryClient();
+  const expired = device.access_status === "expired";
+  const online = !expired && isOnline(device.LastSeen);
+  const name = device.display_name || device.TailscaleIp || "—";
   const showTraffic = device.RxBytes > 0 || device.TxBytes > 0;
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState("");
+
+  const rename = useMutation({
+    mutationFn: (customName: string) =>
+      renameUserAmraaNetDevice(device.Id, customName),
+    onSuccess: async () => {
+      setEditing(false);
+      await queryClient.invalidateQueries({ queryKey: ["amraanet-devices"] });
+    },
+    onError: () => {
+      toast.error(t("renameFailed", "Failed to rename device"));
+    },
+  });
+
+  function startEditing() {
+    setDraftName(device.display_name || "");
+    setEditing(true);
+  }
+
+  function cancelEditing() {
+    setEditing(false);
+  }
+
+  function submitRename() {
+    const trimmed = draftName.trim();
+    if (trimmed.length > 40) {
+      toast.error(t("nameTooLong", "Name must be 40 characters or fewer"));
+      return;
+    }
+    rename.mutate(trimmed);
+  }
 
   return (
     <div className="flex flex-col gap-2 rounded-lg border bg-card p-4">
-      {/* Top row: status dot + name + IP */}
+      {/* Top row: status dot + type icon + name (or input) + IP */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
           <span
             className={cn(
               "h-2 w-2 shrink-0 rounded-full",
-              online ? "bg-green-500" : "bg-muted-foreground/40"
+              expired
+                ? "bg-amber-500"
+                : online
+                  ? "bg-green-500"
+                  : "bg-muted-foreground/40"
             )}
           />
-          <span className="truncate font-medium text-sm">{name}</span>
+          <Icon
+            className="h-4 w-4 shrink-0 text-muted-foreground"
+            icon={deviceTypeIcon(device.device_type)}
+          />
+          {editing ? (
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <Input
+                autoFocus
+                className="h-7 min-w-0 flex-1 px-2 font-medium text-sm"
+                maxLength={40}
+                onChange={(e) => setDraftName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") submitRename();
+                  if (e.key === "Escape") cancelEditing();
+                }}
+                value={draftName}
+              />
+              <Button
+                className="h-7 px-2 text-xs"
+                disabled={rename.isPending}
+                onClick={submitRename}
+                size="sm"
+                variant="default"
+              >
+                {t("save", "Save")}
+              </Button>
+              <Button
+                className="h-7 px-2 text-xs"
+                onClick={cancelEditing}
+                size="sm"
+                variant="ghost"
+              >
+                {t("cancel", "Cancel")}
+              </Button>
+            </div>
+          ) : (
+            <button
+              className="truncate font-medium text-sm hover:underline"
+              onClick={startEditing}
+              title={t("renameDevice", "Rename device")}
+              type="button"
+            >
+              {name}
+            </button>
+          )}
         </div>
-        {device.TailscaleIp && (
+        {!editing && device.TailscaleIp && (
           <Badge className="shrink-0 font-mono text-xs" variant="secondary">
             {device.TailscaleIp}
           </Badge>
         )}
       </div>
 
-      {/* Bottom row: last seen + traffic */}
+      {/* Bottom row: last active + traffic + remove */}
       <div className="flex items-center justify-between gap-2">
         <span
           className={cn(
             "text-xs",
-            online ? "font-medium text-green-600" : "text-muted-foreground"
+            expired
+              ? "font-medium text-amber-600"
+              : online
+                ? "font-medium text-green-600"
+                : "text-muted-foreground"
           )}
         >
-          {online
-            ? t("online", "Online")
-            : relativeTime(
-                device.LastSeen,
-                t as (key: string, opts: object) => string
-              )}
+          {expired
+            ? t("deviceDisconnected", "Disconnected")
+            : online
+              ? t("online", "Online")
+              : relativeTime(
+                  device.LastSeen,
+                  t as (key: string, opts: object) => string
+                )}
         </span>
         {showTraffic && (
           <span className="shrink-0 font-mono text-muted-foreground text-xs">
@@ -398,6 +706,15 @@ function DeviceCard({ device }: { device: API.AmraaNetDevice }) {
             {formatBytes(device.TxBytes) ?? "0 B"}
           </span>
         )}
+        <Button
+          className="ml-auto h-7 px-2 text-destructive hover:text-destructive"
+          onClick={() => onDelete(device)}
+          size="sm"
+          variant="ghost"
+        >
+          <Icon className="mr-1 h-3.5 w-3.5" icon="uil:trash-alt" />
+          {t("deleteDevice", "Remove")}
+        </Button>
       </div>
     </div>
   );
@@ -426,6 +743,43 @@ function DeviceCardSkeleton() {
 }
 
 // ---------------------------------------------------------------------------
+// ExpiredSubscriptionView
+// ---------------------------------------------------------------------------
+
+function ExpiredSubscriptionView() {
+  const { t } = useTranslation("amraanet");
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <Icon className="h-5 w-5 text-orange-500" icon="uil:wifi" />
+          <CardTitle>
+            {t("subscriptionExpired", "Subscription Expired")}
+          </CardTitle>
+        </div>
+      </CardHeader>
+      <CardContent className="grid gap-4">
+        <p className="text-muted-foreground text-sm">
+          {t(
+            "subscriptionExpiredDesc",
+            "Your AmraaNet subscription has expired. Please renew to continue using your private network."
+          )}
+        </p>
+        <Button
+          asChild
+          className="w-fit bg-orange-500 text-white hover:bg-orange-600"
+        >
+          <Link to="/subscribe">
+            {t("renewSubscription", "Renew Subscription")}
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // NotActivatedView — unchanged logic, kept exactly as before
 // ---------------------------------------------------------------------------
 
@@ -438,7 +792,7 @@ function NotActivatedView({ plans }: { plans: API.AmraaNetPlan[] }) {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Icon className="h-5 w-5 text-primary" icon="uil:wifi" />
+            <Icon className="h-5 w-5 text-orange-500" icon="uil:wifi" />
             <CardTitle>{t("title", "AmraaNet Service")}</CardTitle>
           </div>
         </CardHeader>
@@ -446,21 +800,30 @@ function NotActivatedView({ plans }: { plans: API.AmraaNetPlan[] }) {
           <p className="text-muted-foreground text-sm">
             {t(
               "notActivatedDesc",
-              "Subscribe to AmraaNet to get a secure VPN powered by Tailscale and Headscale. You will receive a personal auth key and one-command setup for all your devices."
+              "Таны бүх төхөөрөмжийг нэг дор найдвартай холбоно.Хаанаас ч аюулгүй холбогдож, өөрийн төхөөрөмжүүдээ хувийн сүлжээгээр ашиглаарай."
             )}
           </p>
           <ul className="grid gap-1.5 text-muted-foreground text-sm">
             <li className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
-              {t("feature1", "Encrypted mesh VPN — no central relay")}
+              <Icon
+                className="h-4 w-4 text-orange-500"
+                icon="uil:check-circle"
+              />
+              {t("feature1", "Хувийн аюулгүй сүлжээ")}
             </li>
             <li className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
-              {t("feature2", "Works on macOS, Windows, Linux, iOS, Android")}
+              <Icon
+                className="h-4 w-4 text-orange-500"
+                icon="uil:check-circle"
+              />
+              {t("feature2", "macOS, Windows,iOS, Android")}
             </li>
             <li className="flex items-center gap-2">
-              <Icon className="h-4 w-4 text-primary" icon="uil:check-circle" />
-              {t("feature3", "One-command setup")}
+              <Icon
+                className="h-4 w-4 text-orange-500"
+                icon="uil:check-circle"
+              />
+              {t("feature3", "Бүх төхөөрөмж дээр ашиглах боломжтой")}
             </li>
           </ul>
         </CardContent>
@@ -521,7 +884,10 @@ function PlanCard({ plan }: { plan: API.AmraaNetPlan }) {
         </p>
       </CardContent>
       <CardFooter>
-        <Button asChild className="w-full">
+        <Button
+          asChild
+          className="w-full bg-orange-500 text-white hover:bg-orange-600"
+        >
           <Link to="/subscribe">{t("subscribeNow", "Subscribe Now")}</Link>
         </Button>
       </CardFooter>
@@ -576,6 +942,42 @@ function CredentialBlock({
       <div className="break-all rounded-lg bg-muted px-4 py-3 font-mono text-sm">
         {secret && !visible ? "••••••••••••••••" : (value ?? "—")}
       </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// RegenerateAuthKeyButton — small inline button for refreshing the auth key
+// ---------------------------------------------------------------------------
+
+function RegenerateAuthKeyButton({
+  isLoading,
+  onRegenerate,
+  t,
+}: {
+  isLoading: boolean;
+  onRegenerate: () => void;
+  t: (key: string, fallback: string) => string;
+}) {
+  return (
+    <div className="flex justify-end">
+      <Button
+        className="gap-1.5 text-muted-foreground hover:text-foreground"
+        disabled={isLoading}
+        id="amraanet-regenerate-authkey-btn"
+        onClick={onRegenerate}
+        size="sm"
+        type="button"
+        variant="ghost"
+      >
+        <Icon
+          className={cn("h-3.5 w-3.5", isLoading && "animate-spin")}
+          icon={isLoading ? "uil:spinner" : "uil:refresh"}
+        />
+        {isLoading
+          ? t("regeneratingAuthKey", "Үүсгэж байна...")
+          : t("regenerateAuthKeyBtn", "AuthKey дахин үүсгэх")}
+      </Button>
     </div>
   );
 }

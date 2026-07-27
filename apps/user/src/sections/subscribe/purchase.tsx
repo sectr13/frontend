@@ -165,7 +165,7 @@ export default function Purchase({
               />
             </div>
             <Button
-              className="fixed bottom-0 left-0 w-full md:relative md:mt-6"
+              className="fixed bottom-0 left-0 w-full bg-orange-500 text-white hover:bg-orange-600 md:relative md:mt-6"
               disabled={loading}
               onClick={handleSubmit}
             >

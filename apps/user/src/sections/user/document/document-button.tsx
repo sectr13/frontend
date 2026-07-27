@@ -105,7 +105,7 @@ export function DocumentButton({ items }: { items: API.Document[] }) {
             <div className="flex flex-row items-center gap-4">
               <motion.div layoutId={`image-${item.id}-${id}`}>
                 <Avatar className="size-12">
-                  <AvatarFallback className="bg-primary/80 text-white">
+                  <AvatarFallback className="bg-orange-500/80 text-white">
                     {item.title.split("")[0]}
                   </AvatarFallback>
                 </Avatar>

@@ -60,7 +60,7 @@ export default function LoginForm({
   return (
     <>
       <Form {...form}>
-        <form className="grid gap-6" onSubmit={handleSubmit}>
+        <form className="grid gap-4 lg:gap-3" onSubmit={handleSubmit}>
           <FormField
             control={form.control}
             name="email"
@@ -68,6 +68,7 @@ export default function LoginForm({
               <FormItem>
                 <FormControl>
                   <Input
+                    className="h-11 rounded-xl border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 lg:h-12 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                     placeholder={t("placeholders.email", "Enter your email...")}
                     type="email"
                     {...field}
@@ -84,6 +85,7 @@ export default function LoginForm({
               <FormItem>
                 <FormControl>
                   <Input
+                    className="h-11 rounded-xl border-slate-200 bg-white text-slate-950 placeholder:text-slate-400 lg:h-12 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
                     placeholder={t(
                       "placeholders.password",
                       "Enter your password..."
@@ -114,15 +116,19 @@ export default function LoginForm({
               )}
             />
           )}
-          <Button disabled={loading} type="submit">
+          <Button
+            className="h-11 rounded-xl bg-orange-500 font-semibold text-white shadow-none hover:bg-orange-600 active:bg-orange-700 lg:h-12 dark:bg-orange-500 dark:hover:bg-orange-600"
+            disabled={loading}
+            type="submit"
+          >
             {loading && <Icon className="animate-spin" icon="mdi:loading" />}
             {t("login.title", "Login")}
           </Button>
         </form>
       </Form>
-      <div className="mt-4 flex w-full justify-between text-sm">
+      <div className="mt-4 flex w-full justify-between text-slate-500 text-xs dark:text-slate-400">
         <Button
-          className="p-0"
+          className="h-auto p-0 font-medium text-orange-600 text-xs hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
           onClick={() => onSwitchForm("reset")}
           type="button"
           variant="link"
@@ -130,7 +136,7 @@ export default function LoginForm({
           {t("login.forgotPassword", "Forgot Password?")}
         </Button>
         <Button
-          className="p-0"
+          className="h-auto p-0 font-medium text-orange-600 text-xs hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300"
           onClick={() => {
             setInitialValues(undefined);
             onSwitchForm("register");
